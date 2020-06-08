@@ -21,10 +21,12 @@
         <maven.compiler.target>1.10</maven.compiler.target>
 
         <commons-cli.version>1.4</commons-cli.version>
+        <kotest.version>4.0.6</kotest.version>
 
         <maven-exec-plugin.version>1.4.0</maven-exec-plugin.version>
         <project-executable>net.phobot.parser.Main</project-executable>
         <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     </properties>
 
     <!-- run using 'mvn exec:exec' -->
@@ -41,14 +43,36 @@
             <artifactId>commons-cli</artifactId>
             <version>${commons-cli.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-runner-junit5-jvm</artifactId>
+            <version>${kotest.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-assertions-core-jvm</artifactId>
+            <version>${kotest.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>io.kotest</groupId>
+          <artifactId>kotest-runner-console-jvm</artifactId>
+          <version>${kotest.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <defaultGoal>install</defaultGoal>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-        <outputDirectory>${project.basedir}/target/generated-sources/kotlin</outputDirectory>
-        <testOutputDirectory>${project.basedir}/target/generated-test-sources/kotlin</testOutputDirectory>
+<!--        <outputDirectory>${project.basedir}/target/generated-sources/kotlin</outputDirectory>-->
+<!--        <testOutputDirectory>${project.basedir}/target/generated-test-sources/kotlin</testOutputDirectory>-->
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -116,6 +140,14 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- For JUnit tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+
         </plugins>
     </build>
     <!--

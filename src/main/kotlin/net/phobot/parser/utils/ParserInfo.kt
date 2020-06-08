@@ -482,7 +482,7 @@ object ParserInfo {
     }
 
     /** Summarize a parsing result.  */
-    private fun printParseResult(topLevelRuleName: String, memoTable: MemoTable,
+    fun printParseResult(topLevelRuleName: String, memoTable: MemoTable,
                          syntaxCoverageRuleNames: Array<String>, showAllMatches: Boolean) {
         println()
         println("Clauses:")

@@ -26,11 +26,11 @@ implementation README at [https://github.com/lukehutch/pikaparser]
 ```kotlin
 fun main() {
 
-  val grammarSpec = Files.readString(Paths.get("arithmetic.grammar"))
+  val grammarSpec = Files.readAllLines(Paths.get("arithmetic.grammar")).joinToString()
   
   val grammar = MetaGrammar.parse(grammarSpec)
   
-  val input = Files.readString(Paths.get("arithmetic.input"))
+  val input = Files.readAllLines(Paths.get("arithmetic.input")).joinToString()
   
   val memoTable = grammar.parse(input)
   
