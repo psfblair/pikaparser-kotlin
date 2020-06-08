@@ -428,9 +428,9 @@ object ParserInfo {
 
     /** Print matches in the memo table for a given clause and its subclauses.  */
     private fun printMatchesAndSubClauseMatches(clause: Clause, memoTable: MemoTable) {
-        printMatches(clause, memoTable, true)
+        printMatches(clause, memoTable, showAllMatches = true)
         for (element in clause.labeledSubClauses) {
-            printMatches(element.clause, memoTable, true)
+            printMatches(element.clause, memoTable, showAllMatches = true)
         }
     }
 
@@ -459,8 +459,14 @@ object ParserInfo {
             for (i in 0 until subClauseMatches.size) {
                 val subClauseMatch = subClauseMatches[i]
                 val buf = StringBuilder()
-                TreeUtils.renderTreeView(subClauseMatch, seqClause.labeledSubClauses[i].astNodeLabel,
-                        memoTable.input, "", true, buf)
+                TreeUtils.renderTreeView(
+                        subClauseMatch,
+                        seqClause.labeledSubClauses[i].astNodeLabel,
+                        memoTable.input,
+                        indentStr = "",
+                        isLastChild = true,
+                        buf = buf
+                )
                 println(buf.toString())
             }
         }

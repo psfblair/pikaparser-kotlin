@@ -52,7 +52,7 @@ object ClauseFactory {
     /** Construct a [Rule].  */
     fun rule(ruleName: String, clause: Clause): Rule {
         // Use -1 as precedence if rule group has only one precedence
-        return rule(ruleName, -1, /* associativity = */ null, clause)
+        return rule(ruleName, precedence = -1, associativity = null, clause = clause)
     }
 
     /** Construct a [Rule] with the given precedence and associativity.  */
@@ -69,10 +69,14 @@ object ClauseFactory {
     fun oneOrMore(subClause: Clause): Clause {
         // It doesn't make sense to wrap these clause types in OneOrMore, but the OneOrMore should have
         // no effect if this does occur in the grammar, so remove it
-        return if (subClause is OneOrMore || subClause is Nothing || subClause is FollowedBy
-                || subClause is NotFollowedBy || subClause is Start) {
-            subClause
-        } else OneOrMore(subClause)
+        return if ( subClause is OneOrMore
+                    || subClause is Nothing
+                    || subClause is FollowedBy
+                    || subClause is NotFollowedBy
+                    || subClause is Start
+                ) {
+                    subClause
+                } else OneOrMore(subClause)
     }
 
     /** Construct an [Optional] clause.  */
@@ -132,7 +136,7 @@ object ClauseFactory {
         return if (str.length == 1) {
             c(str[0])
         } else {
-            CharSeq(str, /* ignoreCase = */ false)
+            CharSeq(str, ignoreCase = false)
         }
     }
 

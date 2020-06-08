@@ -74,7 +74,7 @@ class ASTNode private constructor(val label: String, val nodeType: Clause, val s
 
     /** Recursively create an AST from a parse tree.  */
     constructor(label: String, match: Match, input: String) : this(label, match.memoKey.clause, match.memoKey.startPos, match.length, input) {
-        addNodesWithASTNodeLabelsRecursive(this, match, input)
+        addNodesWithASTNodeLabelsRecursive(parentASTNode = this, parentMatch = match, input = input)
     }
 
     /** Recursively convert a match node to an AST node.  */
@@ -129,7 +129,7 @@ class ASTNode private constructor(val label: String, val nodeType: Clause, val s
 
     override fun toString(): String {
         val buf = StringBuilder()
-        TreeUtils.renderTreeView(this, input, "", true, buf)
+        TreeUtils.renderTreeView(astNode = this, input = input, indentStr = "", isLastChild = true, buf = buf)
         return buf.toString()
     }
 }

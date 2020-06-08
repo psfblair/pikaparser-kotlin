@@ -59,7 +59,7 @@ class OneOrMore(subClause: Clause) : Clause(subClause) {
             // fill up with O(M^2) entries in the number of subclause matches M.
             // If there are two or more matches, tailMatch will be non-null.
             val subclauseLength = subClauseMatch.length
-            val tailMatchMemoKey = MemoKey(this, memoKey.startPos + subclauseLength)
+            val tailMatchMemoKey = MemoKey(clause = this, startPos = memoKey.startPos + subclauseLength)
             val tailMatch = memoTable.lookUpBestMatch(tailMatchMemoKey)
 
             // Return a new (right-recursive) match
@@ -81,7 +81,7 @@ class OneOrMore(subClause: Clause) : Clause(subClause) {
 
     override fun toString(): String {
         return updateStringCacheIfNecessary {
-            val firstLabeledSubClause = labeledSubClauses[0].toStringWithASTNodeLabel(this)
+            val firstLabeledSubClause = labeledSubClauses[0].toStringWithASTNodeLabel(parentClause = this)
             "${firstLabeledSubClause}+"
         }
     }

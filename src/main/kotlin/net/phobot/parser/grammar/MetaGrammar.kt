@@ -112,159 +112,216 @@ object MetaGrammar {
 
     // Metagrammar:
 
-    var grammar = Grammar(listOf(//
-            rule(GRAMMAR, //
-                    seq(start(), ruleRef(WSC), oneOrMore(ruleRef(RULE)))), //
+    var grammar = Grammar(
+            listOf(
+                rule(GRAMMAR,
+                        seq(start(), ruleRef(WSC), oneOrMore(ruleRef(RULE)))
+                ),
 
-            rule(RULE, //
-                    ast(RULE_AST, seq(ruleRef(IDENT), ruleRef(WSC), //
-                            optional(ruleRef(PREC)), //
-                            str("<-"), ruleRef(WSC), //
-                            ruleRef(CLAUSE), ruleRef(WSC), c(';'), ruleRef(WSC)))), //
+                rule(RULE,
+                        ast(RULE_AST,
+                                seq(ruleRef(IDENT),
+                                        ruleRef(WSC),
+                                        optional(ruleRef(PREC)),
+                                        str("<-"),
+                                        ruleRef(WSC),
+                                        ruleRef(CLAUSE),
+                                        ruleRef(WSC),
+                                        c(';'),
+                                        ruleRef(WSC)))
+                ),
 
-            // Define precedence order for clause sequences
+                // Define precedence order for clause sequences
 
-            // Parens
-            rule(CLAUSE, 8, /* associativity = */ null, //
-                    seq(c('('), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC), c(')')))/* associativity = */, //
+                // Parens
+                rule(CLAUSE, precedence = 8, associativity = null,
+                        clause = seq(c('('), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC), c(')'))
+                ),
 
-            // Terminals
-            rule(CLAUSE, 7, null, //
-                    first( //
-                            ruleRef(IDENT), //
-                            ruleRef(QUOTED_STRING), //
-                            ruleRef(CHAR_SET), //
-                            ruleRef(NOTHING), //
-                            ruleRef(START)))/* associativity = */, //
+                // Terminals
+                rule(CLAUSE, precedence = 7, associativity = null,
+                        clause = first(
+                                    ruleRef(IDENT),
+                                    ruleRef(QUOTED_STRING),
+                                    ruleRef(CHAR_SET),
+                                    ruleRef(NOTHING),
+                                    ruleRef(START))
+                ),
 
-            // OneOrMore / ZeroOrMore
-            rule(CLAUSE, 6, null, //
-                    first( //
-                            seq(ast(ONE_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('+')),
-                            seq(ast(ZERO_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('*'))))/* associativity = */, //
+                // OneOrMore / ZeroOrMore
+                rule(CLAUSE, precedence = 6, associativity = null,
+                        clause = first(
+                                    seq(ast(ONE_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('+')),
+                                    seq(ast(ZERO_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('*')))
+                ),
 
-            // FollowedBy / NotFollowedBy
-            rule(CLAUSE, 5, null, //
-                    first( //
-                            seq(c('&'), ast(FOLLOWED_BY_AST, ruleRef(CLAUSE))), //
-                            seq(c('!'), ast(NOT_FOLLOWED_BY_AST, ruleRef(CLAUSE)))))/* associativity = */, //
+                // FollowedBy / NotFollowedBy
+                rule(CLAUSE, precedence = 5, associativity = null,
+                        clause = first(
+                                    seq(c('&'), ast(FOLLOWED_BY_AST, ruleRef(CLAUSE))),
+                                    seq(c('!'), ast(NOT_FOLLOWED_BY_AST, ruleRef(CLAUSE))))
+                ),
 
-            // Optional
-            rule(CLAUSE, 4, null, //
-                    seq(ast(OPTIONAL_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('?')))/* associativity = */, //
+                // Optional
+                rule(CLAUSE, precedence = 4, associativity = null,
+                        clause = seq(ast(OPTIONAL_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('?'))
+                ),
 
-            // ASTNodeLabel
-            rule(CLAUSE, 3, null, //
-                    ast(LABEL_AST,
-                            seq(ast(LABEL_NAME_AST, ruleRef(IDENT)), ruleRef(WSC), c(':'), ruleRef(WSC),
-                                    ast(LABEL_CLAUSE_AST, ruleRef(CLAUSE)), ruleRef(WSC))))/* associativity = */, //
+                // ASTNodeLabel
+                rule(CLAUSE, precedence = 3, associativity = null,
+                        clause = ast(LABEL_AST,
+                                        seq(ast(LABEL_NAME_AST,
+                                                ruleRef(IDENT)),
+                                                ruleRef(WSC),
+                                                c(':'),
+                                                ruleRef(WSC),
+                                                ast(LABEL_CLAUSE_AST, ruleRef(CLAUSE)),
+                                                ruleRef(WSC)))
+                ),
 
-            // Seq
-            rule(CLAUSE, 2, null, //
-                    ast(SEQ_AST,
-                            seq(ruleRef(CLAUSE), ruleRef(WSC), oneOrMore(seq(ruleRef(CLAUSE), ruleRef(WSC))))))/* associativity = */,
+                // Seq
+                rule(CLAUSE, precedence = 2, associativity = null,
+                        clause = ast(SEQ_AST,
+                                        seq(ruleRef(CLAUSE),
+                                            ruleRef(WSC),
+                                            oneOrMore(seq(ruleRef(CLAUSE), ruleRef(WSC)))))
+                ),
 
-            // First
-            rule(CLAUSE, 1, null, //
-                    ast(FIRST_AST,
-                            seq(ruleRef(CLAUSE), ruleRef(WSC),
-                                    oneOrMore(seq(c('/'), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC)))))),
+                // First
+                rule(CLAUSE, precedence = 1, associativity = null,
+                        clause = ast(FIRST_AST,
+                                        seq(ruleRef(CLAUSE),
+                                            ruleRef(WSC),
+                                            oneOrMore(seq(c('/'), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC)))))
+                ),
 
-            // Whitespace or comment
-            rule(WSC, //
-                    zeroOrMore(first(c(' ', '\n', '\r', '\t'), ruleRef(COMMENT)))),
+                // Whitespace or comment
+                rule(WSC,
+                        zeroOrMore(first(c(' ', '\n', '\r', '\t'), ruleRef(COMMENT)))
+                ),
 
-            // Comment
-            rule(COMMENT, //
-                    seq(c('#'), zeroOrMore(c('\n').invert()))),
+                // Comment
+                rule(COMMENT,
+                        seq(c('#'), zeroOrMore(c('\n').invert()))
+                ),
 
-            // Identifier
-            rule(IDENT, //
-                    ast(IDENT_AST,
-                            seq(ruleRef(NAME_CHAR), zeroOrMore(first(ruleRef(NAME_CHAR), cRange('0', '9')))))), //
+                // Identifier
+                rule(IDENT,
+                        ast(IDENT_AST,
+                                seq(ruleRef(NAME_CHAR), zeroOrMore(first(ruleRef(NAME_CHAR), cRange('0', '9')))))
+                ),
 
-            // Number
-            rule(NUM, //
-                    oneOrMore(cRange('0', '9'))), //
+                // Number
+                rule(NUM,
+                        oneOrMore(cRange('0', '9'))
+                ),
 
-            // Name character
-            rule(NAME_CHAR, //
-                    c(cRange('a', 'z'), cRange('A', 'Z'), c('_', '-'))),
+                // Name character
+                rule(NAME_CHAR,
+                        c(cRange('a', 'z'), cRange('A', 'Z'), c('_', '-'))
+                ),
 
-            // Precedence and optional associativity modifiers for rule name
-            rule(PREC, //
-                    seq(c('['), ruleRef(WSC), //
-                            ast(PREC_AST, ruleRef(NUM)), ruleRef(WSC), //
-                            optional(seq(c(','), ruleRef(WSC), //
-                                    first(ast(R_ASSOC_AST, first(c('r'), c('R'))),
-                                            ast(L_ASSOC_AST, first(c('l'), c('L')))),
-                                    ruleRef(WSC))), //
-                            c(']'), ruleRef(WSC))), //
+                // Precedence and optional associativity modifiers for rule name
+                rule(PREC,
+                        seq(c('['),
+                            ruleRef(WSC),
+                            ast(PREC_AST, ruleRef(NUM)),
+                            ruleRef(WSC),
+                            optional(seq(c(','),
+                                         ruleRef(WSC),
+                                         first(ast(R_ASSOC_AST, first(c('r'), c('R'))),
+                                               ast(L_ASSOC_AST, first(c('l'), c('L')))),
+                                         ruleRef(WSC))),
+                            c(']'), ruleRef(WSC))
+                ),
 
-            // Character set
-            rule(CHAR_SET, //
-                    first( //
-                            seq(c('\''), ast(SINGLE_QUOTED_CHAR_AST, ruleRef(SINGLE_QUOTED_CHAR)), c('\'')), //
-                            seq(c('['), //
-                                    ast(CHAR_RANGE_AST, seq(optional(c('^')), //
-                                            oneOrMore(first( //
-                                                    ruleRef(CHAR_RANGE), //
-                                                    ruleRef(CHAR_RANGE_CHAR))))),
-                                    c(']')))), //
+                // Character set
+                rule(CHAR_SET,
+                        first(
+                            seq(c('\''),
+                                ast(SINGLE_QUOTED_CHAR_AST, ruleRef(SINGLE_QUOTED_CHAR)),
+                                c('\'')
+                            ),
+                            seq(c('['),
+                                ast(CHAR_RANGE_AST, seq(optional(c('^')),
+                                                        oneOrMore(first(
+                                                                    ruleRef(CHAR_RANGE),
+                                                                    ruleRef(CHAR_RANGE_CHAR))))
+                                ),
+                                c(']')))
+                ),
 
-            // Single quoted character
-            rule(SINGLE_QUOTED_CHAR, //
-                    first( //
-                            ruleRef(ESCAPED_CTRL_CHAR), //
-                            c('\'', '"').invert())), // TODO: replace invert() with NotFollowedBy
+                // Single quoted character
+                rule(SINGLE_QUOTED_CHAR,
+                        first(
+                            ruleRef(ESCAPED_CTRL_CHAR),
+                            c('\'', '"').invert()) // TODO: replace invert() with NotFollowedBy
+                ),
 
-            // Char range
-            rule(CHAR_RANGE, //
-                    seq(ruleRef(CHAR_RANGE_CHAR), c('-'), ruleRef(CHAR_RANGE_CHAR))), //
+                // Char range
+                rule(CHAR_RANGE,
+                        seq(ruleRef(CHAR_RANGE_CHAR),
+                            c('-'),
+                            ruleRef(CHAR_RANGE_CHAR))
+                ),
 
-            // Char range character
-            rule(CHAR_RANGE_CHAR, //
-                    first( //
-                            c('\\', ']').invert(), //
-                            ruleRef(ESCAPED_CTRL_CHAR), //
-                            str("\\\\"), //
-                            str("\\]"), //
-                            str("\\^"))),
+                // Char range character
+                rule(CHAR_RANGE_CHAR,
+                        first(
+                            c('\\', ']').invert(),
+                            ruleRef(ESCAPED_CTRL_CHAR),
+                            str("\\\\"),
+                            str("\\]"),
+                            str("\\^"))
+                ),
 
-            // Quoted string
-            rule(QUOTED_STRING, //
-                    seq(c('"'), ast(QUOTED_STRING_AST, zeroOrMore(ruleRef(STR_QUOTED_CHAR))), c('"'))), //
+                // Quoted string
+                rule(QUOTED_STRING,
+                        seq(c('"'),
+                            ast(QUOTED_STRING_AST,
+                            zeroOrMore(ruleRef(STR_QUOTED_CHAR))),
+                            c('"'))
+                ),
 
-            // Character within quoted string
-            rule(STR_QUOTED_CHAR, //
-                    first( //
-                            ruleRef(ESCAPED_CTRL_CHAR), //
-                            c('"', '\\').invert() //
-                    )), //
+                // Character within quoted string
+                rule(STR_QUOTED_CHAR,
+                        first(
+                            ruleRef(ESCAPED_CTRL_CHAR),
+                            c('"', '\\').invert()
+                        )
+                ),
 
-            // Hex digit
-            rule(HEX, c(cRange('0', '9'), cRange('a', 'f'), cRange('A', 'F'))), //
+                // Hex digit
+                rule(HEX, c(cRange('0', '9'),
+                            cRange('a', 'f'),
+                            cRange('A', 'F'))
+                ),
 
-            // Escaped control character
-            rule(ESCAPED_CTRL_CHAR, //
-                    first( //
-                            str("\\t"), //
-                            str("\\b"), //
-                            str("\\n"), //
-                            str("\\r"), //
-                            str("\\f"), //
-                            str("\\'"), //
-                            str("\\\""), //
-                            str("\\\\"), //
-                            seq(str("\\u"), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX)))), //
+                // Escaped control character
+                rule(ESCAPED_CTRL_CHAR,
+                        first(
+                                str("\\t"),
+                                str("\\b"),
+                                str("\\n"),
+                                str("\\r"),
+                                str("\\f"),
+                                str("\\'"),
+                                str("\\\""),
+                                str("\\\\"),
+                                seq(str("\\u"), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX)))
+                ),
 
-            // Nothing (empty string match)
-            rule(NOTHING, //
-                    ast(NOTHING_AST, seq(c('('), ruleRef(WSC), c(')')))),
+                // Nothing (empty string match)
+                rule(NOTHING,
+                        ast(NOTHING_AST, seq(
+                                            c('('),
+                                            ruleRef(WSC),
+                                            c(')')))
+                ),
 
-            // Match start position
-            rule(START, ast(START_AST, c('^'))) //
-    ))
+                // Match start position
+                rule(START, ast(START_AST, c('^')))
+            ))
 
     /** Recursively parse a list of AST nodes.  */
     private fun parseASTNodes(astNodes: List<ASTNode>): List<Clause> {
@@ -290,11 +347,11 @@ object MetaGrammar {
         when (astNode.label) {
             SEQ_AST                 -> clause = clauseWithMoreThanOneChild(astNode, MultiChildClauseType.SEQ)
             FIRST_AST               -> clause = clauseWithMoreThanOneChild(astNode, MultiChildClauseType.FIRST)
-            ONE_OR_MORE_AST         -> clause = clauseWithOneChild(astNode, SingleChildClauseType.ONE_OR_MORE)
-            ZERO_OR_MORE_AST        -> clause = clauseWithOneChild(astNode, SingleChildClauseType.ZERO_OR_MORE)
-            OPTIONAL_AST            -> clause = clauseWithOneChild(astNode, SingleChildClauseType.OPTIONAL)
-            FOLLOWED_BY_AST         -> clause = clauseWithOneChild(astNode, SingleChildClauseType.FOLLOWED_BY)
-            NOT_FOLLOWED_BY_AST     -> clause = clauseWithOneChild(astNode, SingleChildClauseType.NOT_FOLLOWED_BY)
+            ONE_OR_MORE_AST         -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.ONE_OR_MORE)
+            ZERO_OR_MORE_AST        -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.ZERO_OR_MORE)
+            OPTIONAL_AST            -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.OPTIONAL)
+            FOLLOWED_BY_AST         -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.FOLLOWED_BY)
+            NOT_FOLLOWED_BY_AST     -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.NOT_FOLLOWED_BY)
             LABEL_AST               -> clause = ast(astNode.firstChild.text, parseASTNode(astNode.secondChild.firstChild))
             IDENT_AST               -> clause = ruleRef(astNode.text) // Rule name ref
             QUOTED_STRING_AST           // Doesn't include surrounding quotes
@@ -304,7 +361,7 @@ object MetaGrammar {
             NOTHING_AST             -> clause = nothing()
             CHAR_RANGE_AST          -> clause = charRangeClause(astNode)
             else                        // Keep recursing for parens (the only type of AST node that doesn't have a label)
-                                    -> clause = singleChild(astNode, "node")
+                                    -> clause = singleChild(astNode, typeName = "node")
         }
         return clause
     }
@@ -381,7 +438,7 @@ object MetaGrammar {
         val memoTable = grammar.parse(input)
 
         //        ParserInfo.printParseResult("GRAMMAR", grammar, memoTable, input,
-        //                arrayOf("GRAMMAR", "RULE", "CLAUSE[0]"), /* showAllMatches = */ false)
+        //                arrayOf("GRAMMAR", "RULE", "CLAUSE[0]"), showAllMatches = false)
         //
         //        println("\nParsed meta-grammar:")
         //        for (clause in MetaGrammar.grammar.allClauses) {

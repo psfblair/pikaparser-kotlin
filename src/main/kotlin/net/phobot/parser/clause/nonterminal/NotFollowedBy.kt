@@ -65,7 +65,7 @@ class NotFollowedBy(subClause: Clause) : Clause(subClause) {
 
     override fun toString(): String {
         return updateStringCacheIfNecessary {
-            "!${labeledSubClauses[0].toStringWithASTNodeLabel(this)}"
+            "!${labeledSubClauses[0].toStringWithASTNodeLabel(parentClause = this)}"
         }
     }
 }

@@ -152,14 +152,14 @@ object GrammarUtils {
      * references.
      */
     fun checkNoRefCycles(clause: Clause, selfRefRuleName: String, visited: MutableSet<Clause>) {
-        if (visited.add(clause)) {
-            for (labeledSubClause in clause.labeledSubClauses) {
-                val subClause = labeledSubClause.clause
-                checkNoRefCycles(subClause, selfRefRuleName, visited)
-            }
-        } else {
-            throw IllegalArgumentException(
-                    "Rules should not contain cycles when they are created: $selfRefRuleName")
+        val wasAdded = visited.add(clause)
+
+        require(wasAdded)
+            { "Rules should not contain cycles when they are created: ${selfRefRuleName}" }
+
+        for (labeledSubClause in clause.labeledSubClauses) {
+            val subClause = labeledSubClause.clause
+            checkNoRefCycles(subClause, selfRefRuleName, visited)
         }
         visited.remove(clause)
     }

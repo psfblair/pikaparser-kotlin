@@ -67,6 +67,6 @@ class LabeledClause(var clause: Clause, var astNodeLabel: String?) {
     }
 
     override fun toString(): String {
-        return toStringWithASTNodeLabel(null)
+        return toStringWithASTNodeLabel(parentClause = null)
     }
 }

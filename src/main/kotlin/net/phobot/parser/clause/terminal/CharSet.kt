@@ -37,6 +37,7 @@
 package net.phobot.parser.clause.terminal
 
 import net.phobot.parser.memotable.Match
+import net.phobot.parser.memotable.Match.Companion.NO_SUBCLAUSE_MATCHES
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
 import net.phobot.parser.utils.StringUtils
@@ -95,7 +96,7 @@ class CharSet : Terminal {
     override fun match(memoTable: MemoTable, memoKey: MemoKey, input: String): Match? {
         return if (matchesInput(memoKey, input)) {
             // Terminals are not memoized (i.e. don't look in the memo table)
-            Match(memoKey, /* length = */ 1, Match.NO_SUBCLAUSE_MATCHES)
+            Match(memoKey, length = 1, subClauseMatches = NO_SUBCLAUSE_MATCHES)
         } else null
     }
 

@@ -49,7 +49,7 @@ class CharSeq(private val str: String, private val ignoreCase: Boolean) : Termin
     override fun match(memoTable: MemoTable, memoKey: MemoKey, input: String): Match? {
         return if (memoKey.startPos <= input.length - str.length && input.regionMatches(memoKey.startPos, str, 0, str.length, ignoreCase = ignoreCase)) {
             // Terminals are not memoized (i.e. don't look in the memo table)
-            Match(memoKey, /* length = */ str.length)
+            Match(memoKey, length = str.length)
         } else null
     }
 

@@ -49,7 +49,8 @@ import java.util.stream.Collectors
 /** A grammar. The [.parse] method runs the parser on the provided input string.  */
 class Grammar
 /** Construct a grammar from a set of rules.  */
-(rules: List<Rule>) {
+  (rules: List<Rule>) {
+
     /** All rules in the grammar.  */
     private val allRules: List<Rule>
 
@@ -150,13 +151,14 @@ class Grammar
     fun parse(input: String): MemoTable {
         val priorityQueue = PriorityQueue<Clause> { c1, c2 -> c1.clauseIdx - c2.clauseIdx }
 
-        val memoTable = MemoTable(this, input)
+        val memoTable = MemoTable(grammar = this, input = input)
 
-        val terminals = allClauses.stream().filter { clause ->
-            (clause is Terminal
-                    // Don't match Nothing everywhere -- it always matches
-                    && clause !is Nothing)
-        } //
+        val terminals = allClauses
+                .stream()
+                .filter { clause -> (clause is Terminal
+                                    // Don't match Nothing everywhere -- it always matches
+                                    && clause !is Nothing)
+                        }
                 .collect(Collectors.toList())
 
         // Main parsing loop
@@ -177,8 +179,9 @@ class Grammar
 
     /** Get a rule by name.  */
     fun getRule(ruleNameWithPrecedence: String): Rule {
-        return ruleNameWithPrecedenceToRule[ruleNameWithPrecedence]
-                ?: throw IllegalArgumentException("Unknown rule name: $ruleNameWithPrecedence")
+        val rule = ruleNameWithPrecedenceToRule[ruleNameWithPrecedence]
+        requireNotNull(rule) { "Unknown rule name: $ruleNameWithPrecedence" }
+        return rule!! //This compiles without !! but the editor has a bug that shows it as an error.
     }
 
     /**
@@ -195,7 +198,6 @@ class Grammar
     }
 
     companion object {
-
         /** If true, print verbose debug output.  */
         var DEBUG = false
     }

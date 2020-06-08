@@ -81,7 +81,7 @@ class First(vararg subClauses: Clause) : Clause(*subClauses) {
             labeledSubClauses
                     .asSequence()
                     .asStream()
-                    .map { subClause -> subClause.toStringWithASTNodeLabel(this) }
+                    .map { subClause -> subClause.toStringWithASTNodeLabel(parentClause = this) }
                     .collect(Collectors.joining(" / "))
         }
     }

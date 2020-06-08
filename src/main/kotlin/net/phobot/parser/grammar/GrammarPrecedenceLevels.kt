@@ -48,17 +48,17 @@ object GrammarPrecedenceLevels {
     // GrammarPrecedenceLevels levels (should correspond to levels in the grammar):
     val clauseTypeToPrecedence =
             mapOf(
-                    Terminal::class to      7,
-                    // Treat RuleRef as having the same precedence as a terminal for string interning purposes
-                    RuleRef::class to       7,
-                    OneOrMore::class to     6,
-                    // ZeroOrMore is not present in the final grammar, so it is skipped here
-                    NotFollowedBy::class to 5,
-                    FollowedBy::class to    5,
-                    // Optional is not present in final grammar, so it is skipped here
-                    ASTNodeLabel::class to  3,
-                    Seq::class to           2,
-                    First::class to         1
+               Terminal::class to      7,
+               // Treat RuleRef as having the same precedence as a terminal for string interning purposes
+               RuleRef::class to       7,
+               OneOrMore::class to     6,
+               // ZeroOrMore is not present in the final grammar, so it is skipped here
+               NotFollowedBy::class to 5,
+               FollowedBy::class to    5,
+               // Optional is not present in final grammar, so it is skipped here
+               ASTNodeLabel::class to  3,
+               Seq::class to           2,
+               First::class to         1
             )
 
     /**
@@ -83,7 +83,7 @@ object GrammarPrecedenceLevels {
                 // Always parenthesize Seq inside First for clarity, even though Seq has higher precedence
         return (parentClause is First && subClause is Seq
                 // Add parentheses around subclauses that are lower or equal precedence to parent clause
-            || subClausePrec <= clausePrec)
+               || subClausePrec <= clausePrec)
     }
 
     /** Return true if subclause has lower precedence than an AST node label.  */

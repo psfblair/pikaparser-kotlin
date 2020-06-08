@@ -66,14 +66,19 @@ class TreeUtils {
             inp = StringUtils.escapeString(inp)
 
             // Uncomment for double-spaced rows
-            // buf.append(indentStr + "│\n");
+            //    buf.append("${indentStr}│\n")
 
             buf.append(indentStr + (if (isLastChild) "└─" else "├─") + astNode.label + " : " + astNode.startPos + "+"
                     + astNode.len + " : \"" + inp + "\"\n")
             if (astNode.children.isNotEmpty()) {
                 for (i in 0 until astNode.children.size) {
-                    renderTreeView(astNode.children[i], input, indentStr + if (isLastChild) "  " else "│ ",
-                            i == astNode.children.size - 1, buf)
+                    renderTreeView(
+                            astNode.children[i],
+                            input,
+                            indentStr = indentStr + if (isLastChild) "  " else "│ ",
+                            isLastChild =  i == astNode.children.size - 1,
+                            buf = buf
+                    )
                 }
             }
         }
@@ -82,8 +87,10 @@ class TreeUtils {
         fun renderTreeView(match: Match, astNodeLabel: String?, input: String, indentStr: String,
                            isLastChild: Boolean, buf: StringBuilder) {
             val inpLen = 80
-            var inp = input.substring(match.memoKey.startPos,
-                    input.length.coerceAtMost(match.memoKey.startPos + min(match.length, inpLen)))
+            var inp = input.substring(
+                    match.memoKey.startPos,
+                    min(input.length, match.memoKey.startPos + min(match.length, inpLen))
+            )
             if (inp.length == inpLen) {
                 inp += "..."
             }
@@ -125,8 +132,14 @@ class TreeUtils {
                 val subClauseMatchEnt = subClauseMatchesToUse[subClauseMatchIdx]
                 val subClauseASTNodeLabel = subClauseMatchEnt.key
                 val subClauseMatch = subClauseMatchEnt.value
-                renderTreeView(subClauseMatch, subClauseASTNodeLabel, input, indentStr + if (isLastChild) "  " else "│ ",
-                        subClauseMatchIdx == subClauseMatchesToUse.size - 1, buf)
+                renderTreeView(
+                        subClauseMatch,
+                        subClauseASTNodeLabel,
+                        input,
+                        indentStr = indentStr + if (isLastChild) "  " else "│ ",
+                        isLastChild = subClauseMatchIdx == subClauseMatchesToUse.size - 1,
+                        buf = buf
+                )
             }
         }
     }

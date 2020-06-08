@@ -37,21 +37,21 @@
 package net.phobot.parser.grammar
 
 import net.phobot.parser.clause.Clause
-import net.phobot.parser.clause.aux.LabeledClause
 import net.phobot.parser.clause.aux.ASTNodeLabel
+import net.phobot.parser.clause.aux.LabeledClause
 
 /** A grammar rule.  */
 class Rule
 /** Construct a rule with specified precedence and associativity.  */
 (
-        /** The name of the rule.  */
-        var ruleName: String,
-        /** The precedence of the rule, or -1 for no specified precedence.  */
-        val precedence: Int,
-        /** The associativity of the rule, or null for no specified associativity.  */
-        val associativity: Associativity?,
+  /** The name of the rule.  */
+  var ruleName: String,
+  /** The precedence of the rule, or -1 for no specified precedence.  */
+  val precedence: Int,
+  /** The associativity of the rule, or null for no specified associativity.  */
+  val associativity: Associativity?,
 
-        clause: Clause) {
+  clause: Clause) {
 
     /** The toplevel clause of the rule, and any associated AST node label.  */
     var labeledClause: LabeledClause
@@ -62,8 +62,7 @@ class Rule
     }
 
     init {
-
-        var astNodeLabel: String? = /* associativity = */ null
+        var astNodeLabel: String? = null
         var clauseToUse = clause
         if (clause is ASTNodeLabel) {
             // Transfer ASTNodeLabel.astNodeLabel to astNodeLabel

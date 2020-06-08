@@ -49,26 +49,30 @@ import kotlin.streams.toList
 /** A complete match of a [Clause] at a given start position.  */
 class Match
 
-    /** Construct a new match.  */
-    @JvmOverloads
-    constructor(
-            /** The [MemoKey].  */
-        val memoKey: MemoKey,
+  /** Construct a new match.  */
+  @JvmOverloads
+  constructor(
+      /** The [MemoKey].  */
+      val memoKey: MemoKey,
 
-            /** The length of the match.  */
-        val length: Int = 0,
-            /**
-         * The subclause index of the first matching subclause (will be 0 unless [.labeledClause] is a
-         * [First], and the matching clause was not the first subclause).
-         */
-        private val firstMatchingSubClauseIdx: Int = 0,
+      /** The length of the match.  */
+      val length: Int = 0,
 
-            /** The subclause matches.  */
-        private val subClauseMatches: Array<Match?> = NO_SUBCLAUSE_MATCHES) {
+      /**
+       * The subclause index of the first matching subclause (will be 0 unless [.labeledClause] is a
+       * [First], and the matching clause was not the first subclause).
+       */
+      private val firstMatchingSubClauseIdx: Int = 0,
 
-    /** Construct a new match of a nonterminal clause other than [First].  */
+      /** The subclause matches.  */
+      private val subClauseMatches: Array<Match?> = NO_SUBCLAUSE_MATCHES
+  ) {
+
+    /** Construct a new match of a nonterminal clause other than [First].
+     *  or construct a new terminal match by leaving out subClauseMatches,
+     *  or construct a new zero-length match without subclasses by also leaving out the length. */
     constructor(memoKey: MemoKey, length: Int, subClauseMatches: Array<Match?>) :
-            this(memoKey, length, firstMatchingSubClauseIdx = 0, subClauseMatches = subClauseMatches)
+            this(memoKey, length = length, firstMatchingSubClauseIdx = 0, subClauseMatches = subClauseMatches)
 
     /**
      * Get subclause matches. Automatically flattens the right-recursive structure of [OneOrMore] and
@@ -149,33 +153,36 @@ class Match
     fun toStringWithRuleNames(): String {
         val buf = StringBuilder()
         buf.append(memoKey.toStringWithRuleNames() + "+" + length)
+
         //        buf.append(memoKey.toStringWithRuleNames() + "+" + length + " => [ ");
-        //        var subClauseMatchesToUse = getSubClauseMatches();
-        //        for (int subClauseMatchIdx = 0; subClauseMatchIdx < subClauseMatchesToUse.size; subClauseMatchIdx++) {
-        //            var subClauseMatchEnt = subClauseMatchesToUse.get(subClauseMatchIdx);
+        //        val subClauseMatchesToUse = getSubClauseMatches()
+        //
+        //        for (subClauseMatchEnt in subClauseMatchesToUse) {
         //            var subClauseMatch = subClauseMatchEnt.value;
         //            if (subClauseMatchIdx > 0) {
-        //                buf.append(" ; ");
+        //                buf.append(" ; ")
         //            }
-        //            buf.append(subClauseMatch.toStringWithRuleNames());
+        //            buf.append(subClauseMatch.toStringWithRuleNames())
         //        }
-        //        buf.append(" ]");
+        //        buf.append(" ]")
+
         return buf.toString()
     }
 
     override fun toString(): String {
         val buf = StringBuilder()
         buf.append("${memoKey} + ${length}")
-        //        buf.append(" => [ ");
-        //        var subClauseMatchesToUse = getSubClauseMatches();
-        //        for (int i = 0; i < subClauseMatchesToUse.size; i++) {
-        //            var s = subClauseMatchesToUse[i];
-        //            if (i > 0) {
+
+        //        buf.append(" => [ ")
+        //        val subClauseMatchesToUse = getSubClauseMatches()
+        //        for (s in subClauseMatchesToUse) {
+        //            if (index > 0) {
         //                buf.append(" ; ");
         //            }
         //            buf.append(s.toString());
         //        }
         //        buf.append(" ]");
+
         return buf.toString()
     }
 
@@ -185,5 +192,3 @@ class Match
         val NO_SUBCLAUSE_MATCHES = emptyArray<Match?>()
     }
 }
-/** Construct a new terminal match.  *//* firstMatchingSubClauseIdx = *//* subClauseMatches = */
-/** Construct a new zero-length match without subclauses.  *//* length = */

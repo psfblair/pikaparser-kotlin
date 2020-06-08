@@ -50,10 +50,11 @@ class MemoTable
 // -------------------------------------------------------------------------------------------------------------
 
 (
-        /** The grammar.  */
-        var grammar: Grammar,
-        /** The input string.  */
-        var input: String) {
+  /** The grammar.  */
+  var grammar: Grammar,
+  /** The input string.  */
+  var input: String) {
+
     /**
      * A map from clause to startPos to a [Match] for the memo entry. (Use concurrent data structures so that
      * terminals can be memoized in parallel during initialization.)

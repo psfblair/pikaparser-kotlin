@@ -42,6 +42,6 @@ import net.phobot.parser.memotable.Match
 class LabeledMatch(var match: Match, var astNodeLabel: String?) {
 
     override fun toString(): String {
-        return if (astNodeLabel == null) match.toString() else "${astNodeLabel}:(${match.toString()})"
+        return if (astNodeLabel == null) match.toString() else "${astNodeLabel}:(${match})"
     }
 }
