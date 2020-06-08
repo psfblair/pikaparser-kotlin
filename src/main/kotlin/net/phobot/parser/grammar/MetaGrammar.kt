@@ -196,12 +196,22 @@ object MetaGrammar {
 
                 // Whitespace or comment
                 rule(WSC,
-                        zeroOrMore(first(c(' ', '\n', '\r', '\t'), ruleRef(COMMENT)))
+                        zeroOrMore(
+                                first(
+                                        c(' ', '\n', '\r', '\t'),
+                                        ruleRef(COMMENT)
+                                )
+                        )
                 ),
 
                 // Comment
                 rule(COMMENT,
-                        seq(c('#'), zeroOrMore(c('\n').invert()))
+                        seq(
+                                c('#'),
+                                zeroOrMore(
+                                        c('\n').invert()
+                                )
+                        )
                 ),
 
                 // Identifier
@@ -391,7 +401,7 @@ object MetaGrammar {
         val size = childASTNodes.size
         require (size > 1) { "Must have at least 2 child AST nodes for ${clauseType.typeName}, got ${size}: ${astNode}" }
 
-        val nodesAfterSecond = childASTNodes.slice(2..size).toTypedArray()
+        val nodesAfterSecond = childASTNodes.slice(indices = 2 until size).toTypedArray()
         val clauseConstructor = clauseType.clauseConstructor
         return clauseConstructor(childASTNodes[0], childASTNodes[1], nodesAfterSecond)
     }
@@ -448,7 +458,7 @@ object MetaGrammar {
         val syntaxCoverageRuleNames = arrayOf(GRAMMAR, RULE, "${CLAUSE}[${precedenceOfFirst}]")
         val syntaxErrors = memoTable.getSyntaxErrors(*syntaxCoverageRuleNames)
 
-        if (syntaxErrors.isEmpty()) {
+        if (syntaxErrors.isNotEmpty()) {
             ParserInfo.printSyntaxErrors(syntaxErrors)
         }
 

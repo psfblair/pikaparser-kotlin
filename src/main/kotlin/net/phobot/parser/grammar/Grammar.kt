@@ -63,18 +63,19 @@ class Grammar
         require(rules.isNotEmpty()) { "Grammar must consist of at least one rule" }
 
         // Group rules by name
-        val ruleNameToRules = mutableMapOf<String, List<Rule>>()
+        val ruleNameToRules = mutableMapOf<String, MutableList<Rule>>()
 
         for (rule in rules) {
             val ruleName = rule.ruleName // Kotlin ensures this will never be null
-            val referencedRuleName = (rule.labeledClause.clause as RuleRef).referencedRuleName
 
-            require(rule.labeledClause.clause !is RuleRef || referencedRuleName != ruleName) {
+            require(rule.labeledClause.clause !is RuleRef
+                    || (rule.labeledClause.clause as RuleRef).referencedRuleName != ruleName) {
                 // Make sure rule doesn't refer only to itself
                 "Rule cannot refer to only itself: $ruleName[${rule.precedence}]"
             }
 
-            ruleNameToRules.getOrPut(ruleName, { mutableListOf() })
+            val rulesForName = ruleNameToRules.getOrPut(ruleName, { mutableListOf() })
+            rulesForName.add(rule)
 
             // Make sure there are no cycles in the grammar before RuleRef instances have been replaced
             // with direct references (checking once up front simplifies other recursive routines, so that

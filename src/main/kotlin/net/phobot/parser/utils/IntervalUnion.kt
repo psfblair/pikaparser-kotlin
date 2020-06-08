@@ -113,7 +113,7 @@ class IntervalUnion {
         val floorEntry = nonOverlappingRanges.floorEntry(startPos)
         if (floorEntry != null) {
             val floorEntryStart = floorEntry.key
-            val floorEntryEnd = floorEntry.key
+            val floorEntryEnd = floorEntry.value
 
             val spanBetweenExtremes = max(endPos, floorEntryEnd) - min(startPos, floorEntryStart)
             val sumOfTheLengths = (endPos - startPos) + (floorEntryEnd - floorEntryStart)
@@ -126,7 +126,7 @@ class IntervalUnion {
         val ceilEntry = nonOverlappingRanges.ceilingEntry(startPos)
         if (ceilEntry != null) {
             val ceilEntryStart = ceilEntry.key
-            val ceilEntryEnd = ceilEntry.key
+            val ceilEntryEnd = ceilEntry.value
 
             val spanBetweenExtremes = max(endPos, ceilEntryEnd) - min(startPos, ceilEntryStart)
             val sumOfTheLengths = (endPos - startPos) + (ceilEntryEnd - ceilEntryStart)

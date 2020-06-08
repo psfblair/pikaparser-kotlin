@@ -160,28 +160,32 @@ protected constructor(vararg subClauses: Clause) {
     /** Get the clause as a string, with rule names prepended if the clause is the toplevel clause of a rule.  */
     fun toStringWithRuleNames(): String {
         return updateStringWithRuleNameCacheIfNecessary {
-            val buf = StringBuilder()
-            // Add rule names
-            buf.append(ruleNames)
-            buf.append(" <- ")
-            // Add any AST node labels
-            var addedASTNodeLabels = false
-            for (i in rules.indices) {
-                val rule = rules[i]
-                if (rule.labeledClause.astNodeLabel != null) {
-                    buf.append(rule.labeledClause.astNodeLabel + ":")
-                    addedASTNodeLabels = true
+            if (rules.isNotEmpty()) {
+                val buf = StringBuilder()
+                // Add rule names
+                buf.append(ruleNames)
+                buf.append(" <- ")
+                // Add any AST node labels
+                var addedASTNodeLabels = false
+                for (i in rules.indices) {
+                    val rule = rules[i]
+                    if (rule.labeledClause.astNodeLabel != null) {
+                        buf.append(rule.labeledClause.astNodeLabel + ":")
+                        addedASTNodeLabels = true
+                    }
                 }
+                val addParens = addedASTNodeLabels && GrammarPrecedenceLevels.needToAddParensAroundASTNodeLabel(this)
+                if (addParens) {
+                    buf.append('(')
+                }
+                buf.append(toString())
+                if (addParens) {
+                    buf.append(')')
+                }
+                buf.toString()
+            } else {
+                toString()
             }
-            val addParens = addedASTNodeLabels && GrammarPrecedenceLevels.needToAddParensAroundASTNodeLabel(this)
-            if (addParens) {
-                buf.append('(')
-            }
-            buf.append(toString())
-            if (addParens) {
-                buf.append(')')
-            }
-            buf.toString()
         }
     }
 

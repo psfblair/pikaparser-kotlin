@@ -36,6 +36,7 @@
 package net.phobot.parser
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
 // import io.kotest.assertions.
 import io.kotest.matchers.shouldBe
 import net.phobot.parser.grammar.MetaGrammar
@@ -47,7 +48,7 @@ import kotlin.jvm.javaClass
 class EndToEndTest : FunSpec({
     fun loadResourceFile(filename:String): String {
         val resourceUrl = javaClass.getClassLoader().getResource(filename)!!.toURI()
-        return Files.readAllLines(Paths.get(resourceUrl)).joinToString()
+        return Files.readAllLines(Paths.get(resourceUrl)).joinToString(separator = "")
     }
     
     test("Can parse arithmetic") {
@@ -61,6 +62,39 @@ class EndToEndTest : FunSpec({
         val recoveryRuleNames = arrayOf(topRuleName, "Statement")
 
         ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
+
+        val allClauses = memoTable.grammar.allClauses
+        allClauses.size shouldBe(27)
+
+        val firstClause = allClauses.get(0)
+        var matches = memoTable.getAllMatches(firstClause)
+        matches.size shouldBe(16)
+
+        val firstMatch = matches.get(0)
+        firstMatch.length shouldBe(1)
+        firstMatch.memoKey.startPos shouldBe(0)
+        firstMatch.memoKey.toStringWithRuleNames() shouldBe("[a-z] : 0")
+
+        val sixteenthMatch = matches.get(15)
+        sixteenthMatch.length shouldBe(1)
+        sixteenthMatch.memoKey.startPos shouldBe(21)
+        sixteenthMatch.memoKey.toStringWithRuleNames() shouldBe("[a-z] : 21")
+
+        val lastClause = allClauses.get(26)
+        matches = memoTable.getAllMatches(lastClause)
+
+        val topLevelMatch = matches.get(0)
+        topLevelMatch.length shouldBe(23)
+        topLevelMatch.memoKey.startPos shouldBe(0)
+        topLevelMatch.toStringWithRuleNames() shouldBe("Program <- Statement+ : 0+23")
+
+        topLevelMatch.getSubClauseMatches().size shouldBe(1)
+
+        val firstSubclauseMatchOfLastMatch = topLevelMatch.getSubClauseMatches().get(0)
+        firstSubclauseMatchOfLastMatch.key.shouldBeNull()
+
+        val subClauseString = firstSubclauseMatchOfLastMatch.value.toStringWithRuleNames()
+        subClauseString shouldBe("Statement <- var:[a-z]+ '=' E '' : 0+23")
     }
 
     test("Can parse Java") {

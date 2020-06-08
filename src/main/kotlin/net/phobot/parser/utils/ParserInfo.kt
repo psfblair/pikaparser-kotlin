@@ -44,6 +44,7 @@ import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
 import java.util.*
+import java.util.function.Function
 import kotlin.collections.Map.Entry
 import kotlin.math.max
 
@@ -145,25 +146,22 @@ object ParserInfo {
         var cycleDepth = 0
         for (subClauseMatchEnt in match.getSubClauseMatches()) {
             val subClauseMatch = subClauseMatchEnt.value
-            val subClauseIsInDifferentCycle = //
+            val subClauseIsInDifferentCycle =
                     match.memoKey.clause.clauseIdx <= subClauseMatch.memoKey.clause.clauseIdx
             val subClauseMatchDepth = findCycleDepth(subClauseMatch, cycleDepthToMatches)
-            cycleDepth = cycleDepth.coerceAtLeast(if (subClauseIsInDifferentCycle) subClauseMatchDepth + 1 else subClauseMatchDepth)
+            cycleDepth = max(cycleDepth, if (subClauseIsInDifferentCycle) subClauseMatchDepth + 1 else subClauseMatchDepth)
         }
 
-        var matchesForDepth = cycleDepthToMatches[cycleDepth]
-        if (matchesForDepth == null) {
-            matchesForDepth = TreeMap(Collections.reverseOrder())
-            cycleDepthToMatches[cycleDepth] = matchesForDepth
-        }
+        cycleDepthToMatches.computeIfAbsent(
+                cycleDepth,  { elem: Int? -> TreeMap(Collections.reverseOrder()) }
+        )
 
-        var matchesForClauseIdx = matchesForDepth[match.memoKey.clause.clauseIdx]
-        if (matchesForClauseIdx == null) {
-            matchesForClauseIdx = TreeMap()
-            matchesForDepth[match.memoKey.clause.clauseIdx] = matchesForClauseIdx
-        }
+        cycleDepthToMatches[cycleDepth]!!.computeIfAbsent(
+                match.memoKey.clause.clauseIdx, { k: Int? -> TreeMap() }
+        )
 
-        matchesForClauseIdx[match.memoKey.startPos] = match
+        cycleDepthToMatches[cycleDepth]!![match.memoKey.clause.clauseIdx]!![match.memoKey.startPos] = match
+
         return cycleDepth
     }
 
@@ -269,7 +267,7 @@ object ParserInfo {
             var i = 1
             val ii = memoTable.input.length * 2
             while (i < ii) {
-                edgeMarkers.append('░')
+                edgeMarkers.append('\u2591') // "Light shade" character
                 i++
             }
         }

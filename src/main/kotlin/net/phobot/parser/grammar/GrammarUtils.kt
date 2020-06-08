@@ -198,20 +198,22 @@ object GrammarUtils {
                             // E[i] <- E X E  =>  E[i] = E[i+1] X E[i]
                             // For non-associative rule:
                             // E[i] = E E  =>  E[i] = E[i+1] E[i+1]
-                            clause.labeledSubClauses[i].clause = RuleRef( //
-                                    if (associativity === Associativity.LEFT && selfRefsSoFar == 0 || associativity === Associativity.RIGHT && selfRefsSoFar == numSelfRefs - 1 //
+                            clause.labeledSubClauses[i].clause =
+                                    RuleRef(
+                                        if ((associativity === Associativity.LEFT && selfRefsSoFar == 0) ||
+                                            (associativity === Associativity.RIGHT && selfRefsSoFar == numSelfRefs - 1)
+                                        ) {
+                                            currPrecRuleName
+                                        } else {
+                                            nextHighestPrecRuleName
+                                        }
                                     )
-                                        currPrecRuleName
-                                    else
-                                        nextHighestPrecRuleName)
-                        } else
-                        /* numSelfRefs == 1 */ {
+                        } else /* numSelfRefs == 1 */ {
                             // Move subclause (and its AST node label, if any) inside a First clause that
                             // climbs precedence to the next level:
                             // E[i] <- X E Y  =>  E[i] <- X (E[i] / E[(i+1)%N]) Y
                             subClause.referencedRuleName = currPrecRuleName
-                            clause.labeledSubClauses[i].clause = First(subClause,
-                                    RuleRef(nextHighestPrecRuleName))
+                            clause.labeledSubClauses[i].clause = First(subClause, RuleRef(nextHighestPrecRuleName))
                         }
                         selfRefsSoFar++
                     }
