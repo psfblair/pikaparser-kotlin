@@ -3,7 +3,7 @@
 This version of the pika parsing algorithm is based on the reference implementation 
 of the pika parsing algorithm, described in the paper:
 
-[Pika parsing: parsing in reverse solves the left recursion and error recovery problems. Luke A. D. Hutchison, May 2020.](https://arxiv.org/abs/2005.06444)
+[Pika parsing: reformulating packrat parsing as a dynamic programming algorithm solves the left recursion and error recovery problems. Luke A. D. Hutchison, May 2020.](https://arxiv.org/abs/2005.06444)
 
 It has, however, been migrated to Kotlin from the original Java. The ultimate goal of
 this implementation is to allow for parsing whitespace-sensitive layout syntax as is
@@ -12,9 +12,9 @@ used in languages such as Haskell, F#, Elm, and Python.
 From the README of the reference implementation project:
 
 Pika parsing is the inverse of packrat parsing: instead of parsing top-down, left to right, 
-pika parsing parses right to left, bottom-up, using dynamic programming. This reversed parsing 
-order allows the parser to directly handle left-recursive grammars, and allows the parser 
-to optimally recover from syntax errors.
+pika parsing parses bottom-up, right to left, using dynamic programming. This reversed 
+parsing order allows the parser to directly handle left-recursive grammars, and allows the 
+parser to optimally recover from syntax errors.
 
 ## Example usage
 
@@ -108,7 +108,7 @@ val syntaxErrors =
 ```
 
 Any character range that is not spanned by a match of one of the named rules is returned in 
-the result. You can print out the characters in those ranges as syntax errors. The entries 
+the result as a syntax error. You can print out the characters in those ranges as syntax errors. The entries 
 in the returned `NavigableMap` have as the key the start position of a syntax error (a 
 zero-indexed character position from the beginning of the string), and as the value an 
 entry consisting of the end position of the syntax error and the span of the input between 
@@ -117,30 +117,28 @@ the start position and the end position.
 
 ### Error recovery
 
-You can recover from syntax errors by finding the next match of any grammar rule of interest. 
-For example:
+You can recover from syntax errors by finding the next match of any grammar rule of interest 
+after the syntax error (i.e. after the end of the last character matched by a previous grammar 
+rule). For example:
 
 ``` kotlin
-val programEntries = grammar.getNavigableMatches("Program", memoTable)
+val programEntries: NavigableMap<Int, Match> = grammar.getNavigableMatches("Program", memoTable)
 var matchEndPosition = 0
 
-if (!programEntries.isEmpty()) {
-    val bestMatch? = programEntries.firstEntry().value.bestMatch
-    if (bestMatch != null) {
-        val startPos = bestMatch.memoKey.startPos
-        matchEndPosition = startPos + bestMatch.len
-    }    
+if (programEntries.isNotEmpty()) {
+    val programMatch = programEntries.firstEntry().value
+    if (programMatch != null) {
+        val startPos = programMatch.memoKey.startPos
+        val length: Int = programMatch.length
+        matchEndPosition = startPos + length
+    }
 }
-
 if (matchEndPosition < input.length) {
-    val statementEntries = grammar.getNavigableMatches("Statement", memoTable)
-    val nextStatement? = statementEntries.ceilingEntry(matchEndPosition)
-    if (nextStatement != null) {
-        val nextStatementMatch? = nextStatement.bestMatch
-        if (nextStatementMatch != null) {
-            val nextStatementStartPosition = nextStatement.bestMatch.memoKey.startPos
-            // ...
-        }
+    val statementEntries: NavigableMap<Int, Match> = grammar.getNavigableMatches("Statement", memoTable)
+    val nextStatementEntry = statementEntries.ceilingEntry(matchEndPosition)
+    if (nextStatementEntry != null) {
+        val nextStatementMatch = nextStatementEntry.value
+        // ...
     }
 }
 ```
