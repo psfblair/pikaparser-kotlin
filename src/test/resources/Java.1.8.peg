@@ -41,7 +41,7 @@
 //=========================================================================
 
 Compilation
-    = Spacing CompilationUnit SUB? EOT;
+    <- Spacing CompilationUnit SUB? EOT;
 
 
 //=========================================================================
@@ -63,15 +63,15 @@ Compilation
 //  JLS 3.5  Input Elements and Tokens
 //-------------------------------------------------------------------------
 
-SUB = "\u001a" ;
-EOT = !_ ;
+SUB <- "\u001a" ;
+EOT <- !_ ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.6-7  Spacing
 //-------------------------------------------------------------------------
 
 Spacing
-    = ( [ \t\r\n\u000C]+  // WhiteSpace
+    <- ( [ \t\r\n\u000C]+  // WhiteSpace
       / "/*" _*+ "*/"     // TraditionalComment
       / "//" _*+ [\r\n]   // EndOfLineComment
       )* ;
@@ -80,11 +80,11 @@ Spacing
 //  JLS 3.8  Identifiers
 //-------------------------------------------------------------------------
 
-Identifier  = !Keyword Letter LetterOrDigit* Spacing ;
+Identifier  <- !Keyword Letter LetterOrDigit* Spacing ;
 
-Letter = [a-z] / [A-Z] / [_$] ;
+Letter <- [a-z] / [A-Z] / [_$] ;
 
-LetterOrDigit = [a-z] / [A-Z] / [0-9] / [_$] ;
+LetterOrDigit <- [a-z] / [A-Z] / [0-9] / [_$] ;
 
 // These are traditional definitions of letters and digits.
 // JLS defines letters and digits as Unicode characters recognized
@@ -100,7 +100,7 @@ LetterOrDigit = [a-z] / [A-Z] / [0-9] / [_$] ;
 //-------------------------------------------------------------------------
 
 Keyword
-    = ( "abstract"
+    <- ( "abstract"
       / "assert"
       / "boolean"
       / "break"
@@ -156,64 +156,64 @@ Keyword
       ) !LetterOrDigit
     ;
 
-ABSTRACT     = "abstract"     !LetterOrDigit Spacing ;
-ASSERT       = "assert"       !LetterOrDigit Spacing ;
-BOOLEAN      = "boolean"      !LetterOrDigit Spacing ;
-BREAK        = "break"        !LetterOrDigit Spacing ;
-BYTE         = "byte"         !LetterOrDigit Spacing ;
-CASE         = "case"         !LetterOrDigit Spacing ;
-CATCH        = "catch"        !LetterOrDigit Spacing ;
-CHAR         = "char"         !LetterOrDigit Spacing ;
-CLASS        = "class"        !LetterOrDigit Spacing ;
-CONTINUE     = "continue"     !LetterOrDigit Spacing ;
-DEFAULT      = "default"      !LetterOrDigit Spacing ;
-DOUBLE       = "double"       !LetterOrDigit Spacing ;
-DO           = "do"           !LetterOrDigit Spacing ;
-ELSE         = "else"         !LetterOrDigit Spacing ;
-ENUM         = "enum"         !LetterOrDigit Spacing ;
-EXTENDS      = "extends"      !LetterOrDigit Spacing ;
-FALSE        = "false"        !LetterOrDigit Spacing ;
-FINALLY      = "finally"      !LetterOrDigit Spacing ;
-FINAL        = "final"        !LetterOrDigit Spacing ;
-FLOAT        = "float"        !LetterOrDigit Spacing ;
-FOR          = "for"          !LetterOrDigit Spacing ;
-IF           = "if"           !LetterOrDigit Spacing ;
-IMPLEMENTS   = "implements"   !LetterOrDigit Spacing ;
-IMPORT       = "import"       !LetterOrDigit Spacing ;
-INTERFACE    = "interface"    !LetterOrDigit Spacing ;
-INT          = "int"          !LetterOrDigit Spacing ;
-INSTANCEOF   = "instanceof"   !LetterOrDigit Spacing ;
-LONG         = "long"         !LetterOrDigit Spacing ;
-NATIVE       = "native"       !LetterOrDigit Spacing ;
-NEW          = "new"          !LetterOrDigit Spacing ;
-NULL         = "null"         !LetterOrDigit Spacing ;
-PACKAGE      = "package"      !LetterOrDigit Spacing ;
-PRIVATE      = "private"      !LetterOrDigit Spacing ;
-PROTECTED    = "protected"    !LetterOrDigit Spacing ;
-PUBLIC       = "public"       !LetterOrDigit Spacing ;
-RETURN       = "return"       !LetterOrDigit Spacing ;
-SHORT        = "short"        !LetterOrDigit Spacing ;
-STATIC       = "static"       !LetterOrDigit Spacing ;
-STRICTFP     = "strictfp"     !LetterOrDigit Spacing ;
-SUPER        = "super"        !LetterOrDigit Spacing ;
-SWITCH       = "switch"       !LetterOrDigit Spacing ;
-SYNCHRONIZED = "synchronized" !LetterOrDigit Spacing ;
-THIS         = "this"         !LetterOrDigit Spacing ;
-THROWS       = "throws"       !LetterOrDigit Spacing ;
-THROW        = "throw"        !LetterOrDigit Spacing ;
-TRANSIENT    = "transient"    !LetterOrDigit Spacing ;
-TRUE         = "true"         !LetterOrDigit Spacing ;
-TRY          = "try"          !LetterOrDigit Spacing ;
-VOID         = "void"         !LetterOrDigit Spacing ;
-VOLATILE     = "volatile"     !LetterOrDigit Spacing ;
-WHILE        = "while"        !LetterOrDigit Spacing ;
+ABSTRACT     <- "abstract"     !LetterOrDigit Spacing ;
+ASSERT       <- "assert"       !LetterOrDigit Spacing ;
+BOOLEAN      <- "boolean"      !LetterOrDigit Spacing ;
+BREAK        <- "break"        !LetterOrDigit Spacing ;
+BYTE         <- "byte"         !LetterOrDigit Spacing ;
+CASE         <- "case"         !LetterOrDigit Spacing ;
+CATCH        <- "catch"        !LetterOrDigit Spacing ;
+CHAR         <- "char"         !LetterOrDigit Spacing ;
+CLASS        <- "class"        !LetterOrDigit Spacing ;
+CONTINUE     <- "continue"     !LetterOrDigit Spacing ;
+DEFAULT      <- "default"      !LetterOrDigit Spacing ;
+DOUBLE       <- "double"       !LetterOrDigit Spacing ;
+DO           <- "do"           !LetterOrDigit Spacing ;
+ELSE         <- "else"         !LetterOrDigit Spacing ;
+ENUM         <- "enum"         !LetterOrDigit Spacing ;
+EXTENDS      <- "extends"      !LetterOrDigit Spacing ;
+FALSE        <- "false"        !LetterOrDigit Spacing ;
+FINALLY      <- "finally"      !LetterOrDigit Spacing ;
+FINAL        <- "final"        !LetterOrDigit Spacing ;
+FLOAT        <- "float"        !LetterOrDigit Spacing ;
+FOR          <- "for"          !LetterOrDigit Spacing ;
+IF           <- "if"           !LetterOrDigit Spacing ;
+IMPLEMENTS   <- "implements"   !LetterOrDigit Spacing ;
+IMPORT       <- "import"       !LetterOrDigit Spacing ;
+INTERFACE    <- "interface"    !LetterOrDigit Spacing ;
+INT          <- "int"          !LetterOrDigit Spacing ;
+INSTANCEOF   <- "instanceof"   !LetterOrDigit Spacing ;
+LONG         <- "long"         !LetterOrDigit Spacing ;
+NATIVE       <- "native"       !LetterOrDigit Spacing ;
+NEW          <- "new"          !LetterOrDigit Spacing ;
+NULL         <- "null"         !LetterOrDigit Spacing ;
+PACKAGE      <- "package"      !LetterOrDigit Spacing ;
+PRIVATE      <- "private"      !LetterOrDigit Spacing ;
+PROTECTED    <- "protected"    !LetterOrDigit Spacing ;
+PUBLIC       <- "public"       !LetterOrDigit Spacing ;
+RETURN       <- "return"       !LetterOrDigit Spacing ;
+SHORT        <- "short"        !LetterOrDigit Spacing ;
+STATIC       <- "static"       !LetterOrDigit Spacing ;
+STRICTFP     <- "strictfp"     !LetterOrDigit Spacing ;
+SUPER        <- "super"        !LetterOrDigit Spacing ;
+SWITCH       <- "switch"       !LetterOrDigit Spacing ;
+SYNCHRONIZED <- "synchronized" !LetterOrDigit Spacing ;
+THIS         <- "this"         !LetterOrDigit Spacing ;
+THROWS       <- "throws"       !LetterOrDigit Spacing ;
+THROW        <- "throw"        !LetterOrDigit Spacing ;
+TRANSIENT    <- "transient"    !LetterOrDigit Spacing ;
+TRUE         <- "true"         !LetterOrDigit Spacing ;
+TRY          <- "try"          !LetterOrDigit Spacing ;
+VOID         <- "void"         !LetterOrDigit Spacing ;
+VOLATILE     <- "volatile"     !LetterOrDigit Spacing ;
+WHILE        <- "while"        !LetterOrDigit Spacing ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.10  Literals
 //-------------------------------------------------------------------------
 
 Literal
-    = FloatLiteral
+    <- FloatLiteral
     / IntegerLiteral          // May be a prefix of FloatLiteral
     / BooleanLiteral
     / CharLiteral
@@ -226,7 +226,7 @@ Literal
 //-------------------------------------------------------------------------
 
 IntegerLiteral
-    = ( HexNumeral
+    <- ( HexNumeral
       / BinaryNumeral
       / OctalNumeral            // May be a prefix of HexNumeral or BinaryNumeral
       / DecimalNumeral          // May be a prefix of OctalNumeral
@@ -234,65 +234,65 @@ IntegerLiteral
     ;
 
 DecimalNumeral
-    = "0"
+    <- "0"
     / [1-9]([_]*[0-9])*
     ;
 
 HexNumeral
-    = ("0x" / "0X") HexDigits ;
+    <- ("0x" / "0X") HexDigits ;
 
 OctalNumeral
-    = "0" ([_]*[0-7])+ ;
+    <- "0" ([_]*[0-7])+ ;
 
 BinaryNumeral
-    = ("0b" / "0B") [01]([_]*[01])* ;
+    <- ("0b" / "0B") [01]([_]*[01])* ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.10.2  Floatng-point Literals
 //-------------------------------------------------------------------------
 
 FloatLiteral
-    = ( HexadecimalFloatingPointLiteral
+    <- ( HexadecimalFloatingPointLiteral
       / DecimalFloatingPointLiteral   // May be a prefix of above
       ) Spacing
     ;
 
 DecimalFloatingPointLiteral
-    = Digits "." Digits?  Exponent? [fFdD]?
+    <- Digits "." Digits?  Exponent? [fFdD]?
     / "." Digits Exponent? [fFdD]?
     / Digits Exponent [fFdD]?
     / Digits Exponent? [fFdD]
     ;
 
 Exponent
-    = [eE] [+\-]? Digits ;
+    <- [eE] [+\-]? Digits ;
 
 HexadecimalFloatingPointLiteral
-    = HexSignificand BinaryExponent [fFdD]? ;
+    <- HexSignificand BinaryExponent [fFdD]? ;
 
 HexSignificand
-    = ("0x" / "0X") HexDigits? "." HexDigits
+    <- ("0x" / "0X") HexDigits? "." HexDigits
     / HexNumeral "."?                           // May be a prefix of above
     ;
 
 HexDigits
-    = HexDigit ([_]*HexDigit)* ;
+    <- HexDigit ([_]*HexDigit)* ;
 
 HexDigit
-    = [a-f] / [A-F] / [0-9] ;
+    <- [a-f] / [A-F] / [0-9] ;
 
 BinaryExponent
-    = [pP] [+\-]? Digits ;
+    <- [pP] [+\-]? Digits ;
 
 Digits
-    = [0-9]([_]*[0-9])* ;
+    <- [0-9]([_]*[0-9])* ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.10.3  Boolean Literals
 //-------------------------------------------------------------------------
 
 BooleanLiteral
-    = TRUE
+    <- TRUE
     / FALSE
     ;
 
@@ -301,7 +301,7 @@ BooleanLiteral
 //-------------------------------------------------------------------------
 
 CharLiteral
-    = "'" (Escape / !['\\\n\r] _) "'" Spacing            // this " keeps the editor happy
+    <- "'" (Escape / !['\\\n\r] _) "'" Spacing            // this " keeps the editor happy
     ;
 
 //-------------------------------------------------------------------------
@@ -309,44 +309,44 @@ CharLiteral
 //-------------------------------------------------------------------------
 
 StringLiteral
-    = "\"" (Escape / !["\\\n\r] _)* "\"" Spacing         // this " keeps the editor happy
+    <- "\"" (Escape / !["\\\n\r] _)* "\"" Spacing         // this " keeps the editor happy
     ;
 
 Escape
-    = "\\" ([btnfr"'\\] / OctalEscape / UnicodeEscape)   // this " keeps the editor happy
+    <- "\\" ([btnfr"'\\] / OctalEscape / UnicodeEscape)   // this " keeps the editor happy
     ;
 
 OctalEscape
-    = [0-3][0-7][0-7]
+    <- [0-3][0-7][0-7]
     / [0-7][0-7]
     / [0-7]
     ;
 
 UnicodeEscape
-    = "u"+ HexDigit HexDigit HexDigit HexDigit ;
+    <- "u"+ HexDigit HexDigit HexDigit HexDigit ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.10.6 The Null literal
 //-------------------------------------------------------------------------
 
-NullLiteral = NULL ;
+NullLiteral <- NULL ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.11  Separators
 //-------------------------------------------------------------------------
 
-AT              =   "@"       Spacing ;
-COLONCOLON      =   "::"      Spacing ;
-COMMA           =   ","       Spacing ;
-DOT             =   "."       Spacing ;
-ELLIPSIS        =   "..."     Spacing ;
-LPAR            =   "("       Spacing ;
-LBRK            =   "["       Spacing ;
-RBRK            =   "]"       Spacing ;
-RPAR            =   ")"       Spacing ;
-LWING           =   "{"       Spacing ;
-RWING           =   "}"       Spacing ;
-SEMI            =   ";"       Spacing ;
+AT              <-   "@"       Spacing ;
+COLONCOLON      <-   "::"      Spacing ;
+COMMA           <-   ","       Spacing ;
+DOT             <-   "."       Spacing ;
+ELLIPSIS        <-   "..."     Spacing ;
+LPAR            <-   "("       Spacing ;
+LBRK            <-   "["       Spacing ;
+RBRK            <-   "]"       Spacing ;
+RPAR            <-   ")"       Spacing ;
+LWING           <-   "{"       Spacing ;
+RWING           <-   "}"       Spacing ;
+SEMI            <-   ";"       Spacing ;
 
 //-------------------------------------------------------------------------
 //  JLS 3.12  Operators
@@ -356,46 +356,46 @@ SEMI            =   ";"       Spacing ;
 //  rule given in JLS 3.2.
 //-------------------------------------------------------------------------
 
-AND             =   "&"![=&]  Spacing ;
-ANDAND          =   "&&"      Spacing ;
-ANDEQU          =   "&="      Spacing ;
-ARROW           =   "->"      Spacing ;
-BANG            =   "!" ![=]  Spacing ;
-BSR             =   ">>>"![=] Spacing ;
-BSREQU          =   ">>>="    Spacing ;
-COLON           =   ":" ![:]  Spacing ;
-DEC             =   "--"      Spacing ;
-DIV             =   "/" ![=]  Spacing ;
-DIVEQU          =   "/="      Spacing ;
-EQU             =   "=" ![=]  Spacing ;
-EQUAL           =   "=="      Spacing ;
-GE              =   ">="      Spacing ;
-GT              =   ">"![=>]  Spacing ;
-HAT             =   "^"![=]   Spacing ;
-HATEQU          =   "^="      Spacing ;
-INC             =   "++"      Spacing ;
-LE              =   "<="      Spacing ;
-LPOINT          =   "<"       Spacing ;
-LT              =   "<"![=<]  Spacing ;
-MINUS           =   "-"![=\->]Spacing ;
-MINUSEQU        =   "-="      Spacing ;
-MOD             =   "%"![=]   Spacing ;
-MODEQU          =   "%="      Spacing ;
-NOTEQUAL        =   "!="      Spacing ;
-OR              =   "|"![=|]  Spacing ;
-OREQU           =   "|="      Spacing ;
-OROR            =   "||"      Spacing ;
-PLUS            =   "+"![=+]  Spacing ;
-PLUSEQU         =   "+="      Spacing ;
-QUERY           =   "?"       Spacing ;
-RPOINT          =   ">"       Spacing ;
-SL              =   "<<"![=]  Spacing ;
-SLEQU           =   "<<="     Spacing ;
-SR              =   ">>"![=>] Spacing ;
-SREQU           =   ">>="     Spacing ;
-STAR            =   "*"![=]   Spacing ;
-STAREQU         =   "*="      Spacing ;
-TILDE           =   "~"       Spacing ;
+AND             <-   "&"![=&]  Spacing ;
+ANDAND          <-   "&&"      Spacing ;
+ANDEQU          <-   "&="      Spacing ;
+ARROW           <-   "->"      Spacing ;
+BANG            <-   "!" ![=]  Spacing ;
+BSR             <-   ">>>"![=] Spacing ;
+BSREQU          <-   ">>>="    Spacing ;
+COLON           <-   ":" ![:]  Spacing ;
+DEC             <-   "--"      Spacing ;
+DIV             <-   "/" ![=]  Spacing ;
+DIVEQU          <-   "/="      Spacing ;
+EQU             <-   "=" ![=]  Spacing ;
+EQUAL           <-   "=="      Spacing ;
+GE              <-   ">="      Spacing ;
+GT              <-   ">"![=>]  Spacing ;
+HAT             <-   "^"![=]   Spacing ;
+HATEQU          <-   "^="      Spacing ;
+INC             <-   "++"      Spacing ;
+LE              <-   "<="      Spacing ;
+LPOINT          <-   "<"       Spacing ;
+LT              <-   "<"![=<]  Spacing ;
+MINUS           <-   "-"![=\->]Spacing ;
+MINUSEQU        <-   "-="      Spacing ;
+MOD             <-   "%"![=]   Spacing ;
+MODEQU          <-   "%="      Spacing ;
+NOTEQUAL        <-   "!="      Spacing ;
+OR              <-   "|"![=|]  Spacing ;
+OREQU           <-   "|="      Spacing ;
+OROR            <-   "||"      Spacing ;
+PLUS            <-   "+"![=+]  Spacing ;
+PLUSEQU         <-   "+="      Spacing ;
+QUERY           <-   "?"       Spacing ;
+RPOINT          <-   ">"       Spacing ;
+SL              <-   "<<"![=]  Spacing ;
+SLEQU           <-   "<<="     Spacing ;
+SR              <-   ">>"![=>] Spacing ;
+SREQU           <-   ">>="     Spacing ;
+STAR            <-   "*"![=]   Spacing ;
+STAREQU         <-   "*="      Spacing ;
+TILDE           <-   "~"       Spacing ;
 
 
 //=========================================================================
@@ -406,7 +406,7 @@ TILDE           =   "~"       Spacing ;
 //-------------------------------------------------------------------------
 
 BasicType
-    = BYTE
+    <- BYTE
     / SHORT
     / INT
     / LONG
@@ -417,73 +417,73 @@ BasicType
     ;
 
 PrimitiveType
-    = Annotation* BasicType ;
+    <- Annotation* BasicType ;
 
 //-------------------------------------------------------------------------
 //  JLS 4.3  Reference Types and Values
 //-------------------------------------------------------------------------
 
 ReferenceType
-    = PrimitiveType Dim+
+    <- PrimitiveType Dim+
     / ClassType Dim*
     ;
 
 ClassType
-    = Annotation* Identifier TypeArguments?
+    <- Annotation* Identifier TypeArguments?
           (DOT Annotation* Identifier TypeArguments?)* ;
 
 Type
-    = PrimitiveType
+    <- PrimitiveType
     / ClassType
     ;
 
 ArrayType
-    = PrimitiveType Dim+
+    <- PrimitiveType Dim+
     / ClassType Dim+
     ;
 
 TypeVariable
-    = Annotation* Identifier ;
+    <- Annotation* Identifier ;
 
 Dim
-    = Annotation* LBRK RBRK ;
+    <- Annotation* LBRK RBRK ;
 
 //-------------------------------------------------------------------------
 //  JLS 4.4  Type Variables
 //-------------------------------------------------------------------------
 
 TypeParameter
-    = TypeParameterModifier* Identifier TypeBound? ;
+    <- TypeParameterModifier* Identifier TypeBound? ;
 
 TypeParameterModifier
-    = Annotation ;
+    <- Annotation ;
 
 TypeBound
-    = EXTENDS (ClassType AdditionalBound* / TypeVariable) ;
+    <- EXTENDS (ClassType AdditionalBound* / TypeVariable) ;
 
 AdditionalBound
-    = AND ClassType ;
+    <- AND ClassType ;
 
 //-------------------------------------------------------------------------
 //  JLS 4.5  Parametrized Types
 //-------------------------------------------------------------------------
 
 TypeArguments
-    = LPOINT TypeArgumentList RPOINT ;
+    <- LPOINT TypeArgumentList RPOINT ;
 
 TypeArgumentList
-    = TypeArgument (COMMA TypeArgument)* ;
+    <- TypeArgument (COMMA TypeArgument)* ;
 
 TypeArgument
-    = ReferenceType
+    <- ReferenceType
     / Wildcard
     ;
 
 Wildcard
-    = Annotation* QUERY WildcardBounds? ;
+    <- Annotation* QUERY WildcardBounds? ;
 
 WildcardBounds
-    = EXTENDS ReferenceType
+    <- EXTENDS ReferenceType
     / SUPER ReferenceType
     ;
 
@@ -493,7 +493,7 @@ WildcardBounds
 //=========================================================================
 
 QualIdent
-    = Identifier (DOT Identifier)* ;
+    <- Identifier (DOT Identifier)* ;
 
 
 //=========================================================================
@@ -504,24 +504,24 @@ QualIdent
 //-------------------------------------------------------------------------
 
 CompilationUnit
-    = PackageDeclaration? ImportDeclaration* TypeDeclaration* ;
+    <- PackageDeclaration? ImportDeclaration* TypeDeclaration* ;
 
 //-------------------------------------------------------------------------
 //  JLS 7.4  Package Declarations
 //-------------------------------------------------------------------------
 
 PackageDeclaration
-    = PackageModifier* PACKAGE Identifier (DOT Identifier)* SEMI ;
+    <- PackageModifier* PACKAGE Identifier (DOT Identifier)* SEMI ;
 
 PackageModifier
-    = Annotation ;
+    <- Annotation ;
 
 //-------------------------------------------------------------------------
 //  JLS 7.5  Import Declarations
 //-------------------------------------------------------------------------
 
 ImportDeclaration
-    = IMPORT STATIC? QualIdent (DOT STAR)? SEMI
+    <- IMPORT STATIC? QualIdent (DOT STAR)? SEMI
     / SEMI
     ;
 
@@ -530,7 +530,7 @@ ImportDeclaration
 //-------------------------------------------------------------------------
 
 TypeDeclaration
-    = ClassDeclaration
+    <- ClassDeclaration
     / InterfaceDeclaration
     / SEMI
     ;
@@ -544,17 +544,17 @@ TypeDeclaration
 //-------------------------------------------------------------------------
 
 ClassDeclaration
-    = NormalClassDeclaration
+    <- NormalClassDeclaration
     / EnumDeclaration
     ;
 
 NormalClassDeclaration
-    = ClassModifier* CLASS Identifier TypeParameters?
+    <- ClassModifier* CLASS Identifier TypeParameters?
           Superclass? Superinterfaces? ClassBody
     ;
 
 ClassModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / PROTECTED
     / PRIVATE
@@ -565,32 +565,32 @@ ClassModifier
     ;
 
 TypeParameters
-    = LPOINT TypeParameterList RPOINT ;
+    <- LPOINT TypeParameterList RPOINT ;
 
 TypeParameterList
-    = TypeParameter (COMMA TypeParameter)* ;
+    <- TypeParameter (COMMA TypeParameter)* ;
 
 Superclass
-    = EXTENDS ClassType ;
+    <- EXTENDS ClassType ;
 
 Superinterfaces
-    = IMPLEMENTS InterfaceTypeList ;
+    <- IMPLEMENTS InterfaceTypeList ;
 
 InterfaceTypeList
-    = ClassType (COMMA ClassType)* ;
+    <- ClassType (COMMA ClassType)* ;
 
 ClassBody
-    = LWING ClassBodyDeclaration* RWING ;
+    <- LWING ClassBodyDeclaration* RWING ;
 
 ClassBodyDeclaration
-    = ClassMemberDeclaration
+    <- ClassMemberDeclaration
     / InstanceInitializer
     / StaticInitializer
     / ConstructorDeclaration
     ;
 
 ClassMemberDeclaration
-    = FieldDeclaration
+    <- FieldDeclaration
     / MethodDeclaration
     / ClassDeclaration
     / InterfaceDeclaration
@@ -602,33 +602,33 @@ ClassMemberDeclaration
 //-------------------------------------------------------------------------
 
 FieldDeclaration
-    = FieldModifier* UnannType VariableDeclaratorList SEMI ;
+    <- FieldModifier* UnannType VariableDeclaratorList SEMI ;
 
 VariableDeclaratorList
-    = VariableDeclarator (COMMA VariableDeclarator)* ;
+    <- VariableDeclarator (COMMA VariableDeclarator)* ;
 
 VariableDeclarator
-    = VariableDeclaratorId (EQU VariableInitializer)? ;
+    <- VariableDeclaratorId (EQU VariableInitializer)? ;
 
 VariableDeclaratorId
-    = Identifier Dim* ;
+    <- Identifier Dim* ;
 
 VariableInitializer
-    = Expression
+    <- Expression
     / ArrayInitializer
     ;
 
 UnannClassType
-    = Identifier TypeArguments?
+    <- Identifier TypeArguments?
           (DOT Annotation* Identifier TypeArguments?)*  ;
 
 UnannType
-    = BasicType Dim*
+    <- BasicType Dim*
     / UnannClassType Dim*
     ;
 
 FieldModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / PROTECTED
     / PRIVATE
@@ -643,39 +643,39 @@ FieldModifier
 //-------------------------------------------------------------------------
 
 MethodDeclaration
-    = MethodModifier* MethodHeader MethodBody ;
+    <- MethodModifier* MethodHeader MethodBody ;
 
 MethodHeader
-    = Result MethodDeclarator Throws?
+    <- Result MethodDeclarator Throws?
     / TypeParameters Annotation* Result MethodDeclarator Throws?
     ;
 
 MethodDeclarator
-    = Identifier LPAR FormalParameterList? RPAR Dim* ;
+    <- Identifier LPAR FormalParameterList? RPAR Dim* ;
 
 FormalParameterList
-    = (ReceiverParameter / FormalParameter)(COMMA FormalParameter)* ;
+    <- (ReceiverParameter / FormalParameter)(COMMA FormalParameter)* ;
 
 FormalParameter
-    = VariableModifier* UnannType VariableDeclaratorId
+    <- VariableModifier* UnannType VariableDeclaratorId
     / VariableModifier* UnannType Annotation* ELLIPSIS VariableDeclaratorId !COMMA
     ;
 
 VariableModifier
-    = Annotation
+    <- Annotation
     / FINAL
     ;
 
 ReceiverParameter
-    = VariableModifier* UnannType (Identifier DOT)? THIS ;
+    <- VariableModifier* UnannType (Identifier DOT)? THIS ;
 
 Result
-    = UnannType
+    <- UnannType
     / VOID
     ;
 
 MethodModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / PROTECTED
     / PRIVATE
@@ -688,18 +688,18 @@ MethodModifier
     ;
 
 Throws
-    = THROWS ExceptionTypeList ;
+    <- THROWS ExceptionTypeList ;
 
 ExceptionTypeList
-    = ExceptionType (COMMA ExceptionType)* ;
+    <- ExceptionType (COMMA ExceptionType)* ;
 
 ExceptionType
-    = ClassType
+    <- ClassType
     / TypeVariable
     ;
 
 MethodBody
-    = Block
+    <- Block
     / SEMI
     ;
 
@@ -708,37 +708,37 @@ MethodBody
 //-------------------------------------------------------------------------
 
 InstanceInitializer
-    = Block ;
+    <- Block ;
 
 //-------------------------------------------------------------------------
 //  JLS 8.7  Static Initializers
 //-------------------------------------------------------------------------
 
 StaticInitializer
-    = STATIC Block ;
+    <- STATIC Block ;
 
 //-------------------------------------------------------------------------
 //  JLS 8.8  Constructor Declarations
 //-------------------------------------------------------------------------
 
 ConstructorDeclaration
-    = ConstructorModifier* ConstructorDeclarator Throws? ConstructorBody ;
+    <- ConstructorModifier* ConstructorDeclarator Throws? ConstructorBody ;
 
 ConstructorDeclarator
-    = TypeParameters? Identifier LPAR FormalParameterList? RPAR ;
+    <- TypeParameters? Identifier LPAR FormalParameterList? RPAR ;
 
 ConstructorModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / PROTECTED
     / PRIVATE
     ;
 
 ConstructorBody
-    = LWING ExplicitConstructorInvocation? BlockStatements? RWING ;
+    <- LWING ExplicitConstructorInvocation? BlockStatements? RWING ;
 
 ExplicitConstructorInvocation
-    = TypeArguments? THIS Arguments SEMI
+    <- TypeArguments? THIS Arguments SEMI
     / TypeArguments? SUPER Arguments SEMI
     / Primary DOT TypeArguments? SUPER Arguments SEMI
     / QualIdent DOT TypeArguments? SUPER Arguments SEMI
@@ -749,22 +749,22 @@ ExplicitConstructorInvocation
 //-------------------------------------------------------------------------
 
 EnumDeclaration
-    = ClassModifier* ENUM Identifier Superinterfaces? EnumBody ;
+    <- ClassModifier* ENUM Identifier Superinterfaces? EnumBody ;
 
 EnumBody
-    = LWING EnumConstantList? COMMA? EnumBodyDeclarations? RWING ;
+    <- LWING EnumConstantList? COMMA? EnumBodyDeclarations? RWING ;
 
 EnumConstantList
-    = EnumConstant (COMMA EnumConstant)* ;
+    <- EnumConstant (COMMA EnumConstant)* ;
 
 EnumConstant
-    = EnumConstantModifier* Identifier Arguments? ClassBody? ;
+    <- EnumConstantModifier* Identifier Arguments? ClassBody? ;
 
 EnumConstantModifier
-    = Annotation ;
+    <- Annotation ;
 
 EnumBodyDeclarations
-    = SEMI ClassBodyDeclaration* ;
+    <- SEMI ClassBodyDeclaration* ;
 
 
 //=========================================================================
@@ -775,16 +775,16 @@ EnumBodyDeclarations
 //-------------------------------------------------------------------------
 
 InterfaceDeclaration
-    = NormalInterfaceDeclaration
+    <- NormalInterfaceDeclaration
     / AnnotationTypeDeclaration
     ;
 
 NormalInterfaceDeclaration
-    = InterfaceModifier* INTERFACE Identifier TypeParameters?
+    <- InterfaceModifier* INTERFACE Identifier TypeParameters?
           ExtendsInterfaces? InterfaceBody ;
 
 InterfaceModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / PROTECTED
     / PRIVATE
@@ -794,13 +794,13 @@ InterfaceModifier
     ;
 
 ExtendsInterfaces
-    = EXTENDS InterfaceTypeList ;
+    <- EXTENDS InterfaceTypeList ;
 
 InterfaceBody
-    = LWING InterfaceMemberDeclaration* RWING ;
+    <- LWING InterfaceMemberDeclaration* RWING ;
 
 InterfaceMemberDeclaration
-    = ConstantDeclaration
+    <- ConstantDeclaration
     / InterfaceMethodDeclaration
     / ClassDeclaration
     / InterfaceDeclaration
@@ -812,10 +812,10 @@ InterfaceMemberDeclaration
 //-------------------------------------------------------------------------
 
 ConstantDeclaration
-    = ConstantModifier* UnannType VariableDeclaratorList SEMI ;
+    <- ConstantModifier* UnannType VariableDeclaratorList SEMI ;
 
 ConstantModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / STATIC
     / FINAL
@@ -826,10 +826,10 @@ ConstantModifier
 //-------------------------------------------------------------------------
 
 InterfaceMethodDeclaration
-    = InterfaceMethodModifier* MethodHeader MethodBody ;
+    <- InterfaceMethodModifier* MethodHeader MethodBody ;
 
 InterfaceMethodModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / ABSTRACT
     / DEFAULT
@@ -842,13 +842,13 @@ InterfaceMethodModifier
 //-------------------------------------------------------------------------
 
 AnnotationTypeDeclaration
-    = InterfaceModifier* AT INTERFACE Identifier AnnotationTypeBody ;
+    <- InterfaceModifier* AT INTERFACE Identifier AnnotationTypeBody ;
 
 AnnotationTypeBody
-    = LWING AnnotationTypeMemberDeclaration* RWING ;
+    <- LWING AnnotationTypeMemberDeclaration* RWING ;
 
 AnnotationTypeMemberDeclaration
-    = AnnotationTypeElementDeclaration
+    <- AnnotationTypeElementDeclaration
     / ConstantDeclaration
     / ClassDeclaration
     / InterfaceDeclaration
@@ -856,24 +856,24 @@ AnnotationTypeMemberDeclaration
     ;
 
 AnnotationTypeElementDeclaration
-    = AnnotationTypeElementModifier* UnannType Identifier LPAR RPAR Dim*
+    <- AnnotationTypeElementModifier* UnannType Identifier LPAR RPAR Dim*
          DefaultValue? SEMI ;
 
 AnnotationTypeElementModifier
-    = Annotation
+    <- Annotation
     / PUBLIC
     / ABSTRACT
     ;
 
 DefaultValue
-    = DEFAULT ElementValue ;
+    <- DEFAULT ElementValue ;
 
 //-------------------------------------------------------------------------
 //  JLS 9.7  Annotations
 //-------------------------------------------------------------------------
 
 Annotation
-    = AT
+    <- AT
       ( NormalAnnotation
       / SingleElementAnnotation
       / MarkerAnnotation
@@ -881,31 +881,31 @@ Annotation
     ;
 
 NormalAnnotation
-    = QualIdent LPAR ElementValuePairList* RPAR ;
+    <- QualIdent LPAR ElementValuePairList* RPAR ;
 
 ElementValuePairList
-    = ElementValuePair (COMMA ElementValuePair)* ;
+    <- ElementValuePair (COMMA ElementValuePair)* ;
 
 ElementValuePair
-    = Identifier EQU ElementValue ;
+    <- Identifier EQU ElementValue ;
 
 ElementValue
-    = ConditionalExpression
+    <- ConditionalExpression
     / ElementValueArrayInitializer
     / Annotation
     ;
 
 ElementValueArrayInitializer
-    = LWING ElementValueList? COMMA? RWING ;
+    <- LWING ElementValueList? COMMA? RWING ;
 
 ElementValueList
-    = ElementValue (COMMA ElementValue)* ;
+    <- ElementValue (COMMA ElementValue)* ;
 
 MarkerAnnotation
-    = QualIdent ;
+    <- QualIdent ;
 
 SingleElementAnnotation
-    = QualIdent LPAR ElementValue RPAR ;
+    <- QualIdent LPAR ElementValue RPAR ;
 
 
 //=========================================================================
@@ -916,10 +916,10 @@ SingleElementAnnotation
 //-------------------------------------------------------------------------
 
 ArrayInitializer
-    = LWING VariableInitializerList? COMMA? RWING ;
+    <- LWING VariableInitializerList? COMMA? RWING ;
 
 VariableInitializerList
-    = VariableInitializer (COMMA VariableInitializer)* ;
+    <- VariableInitializer (COMMA VariableInitializer)* ;
 
 //=========================================================================
 //  JLS 14  Blocks and Statements
@@ -929,13 +929,13 @@ VariableInitializerList
 //-------------------------------------------------------------------------
 
 Block
-    = LWING BlockStatements? RWING ;
+    <- LWING BlockStatements? RWING ;
 
 BlockStatements
-    = BlockStatement BlockStatement* ;
+    <- BlockStatement BlockStatement* ;
 
 BlockStatement
-    = LocalVariableDeclarationStatement
+    <- LocalVariableDeclarationStatement
     / ClassDeclaration
     / Statement
     ;
@@ -945,17 +945,17 @@ BlockStatement
 //-------------------------------------------------------------------------
 
 LocalVariableDeclarationStatement
-    = LocalVariableDeclaration SEMI ;
+    <- LocalVariableDeclaration SEMI ;
 
 LocalVariableDeclaration
-    = VariableModifier* UnannType VariableDeclaratorList ;
+    <- VariableModifier* UnannType VariableDeclaratorList ;
 
 //-------------------------------------------------------------------------
 //  JLS 14.5  Statements
 //-------------------------------------------------------------------------
 
 Statement
-    = Block
+    <- Block
     / IF ParExpression Statement (ELSE Statement)?
     / BasicForStatement
     / EnhancedForStatement
@@ -983,7 +983,7 @@ Statement
 //-------------------------------------------------------------------------
 
 StatementExpression
-    = Assignment
+    <- Assignment
     / (INC / DEC)(Primary / QualIdent)
     / (Primary / QualIdent)(INC / DEC)
     / Primary
@@ -996,42 +996,42 @@ StatementExpression
 //-------------------------------------------------------------------------
 
 SwitchBlock
-    = LWING SwitchBlockStatementGroup* SwitchLabel* RWING ;
+    <- LWING SwitchBlockStatementGroup* SwitchLabel* RWING ;
 
 SwitchBlockStatementGroup
-    = SwitchLabels BlockStatements ;
+    <- SwitchLabels BlockStatements ;
 
 SwitchLabels
-    = SwitchLabel SwitchLabel* ;
+    <- SwitchLabel SwitchLabel* ;
 
 SwitchLabel
-    = CASE (ConstantExpression / EnumConstantName) COLON
+    <- CASE (ConstantExpression / EnumConstantName) COLON
     / DEFAULT COLON
     ;
 
 EnumConstantName
-    = Identifier ;
+    <- Identifier ;
 
 //-------------------------------------------------------------------------
 //  JLS 14.14  The FOR Statement
 //-------------------------------------------------------------------------
 
 BasicForStatement
-    = FOR LPAR ForInit? SEMI Expression? SEMI ForUpdate? RPAR Statement ;
+    <- FOR LPAR ForInit? SEMI Expression? SEMI ForUpdate? RPAR Statement ;
 
 ForInit
-    = LocalVariableDeclaration
+    <- LocalVariableDeclaration
     / StatementExpressionList
     ;
 
 ForUpdate
-    = StatementExpressionList ;
+    <- StatementExpressionList ;
 
 StatementExpressionList
-    = StatementExpression (COMMA  StatementExpression)* ;
+    <- StatementExpression (COMMA  StatementExpression)* ;
 
 EnhancedForStatement
-    = FOR LPAR VariableModifier* UnannType VariableDeclaratorId COLON
+    <- FOR LPAR VariableModifier* UnannType VariableDeclaratorId COLON
           Expression RPAR Statement ;
 
 //-------------------------------------------------------------------------
@@ -1039,32 +1039,32 @@ EnhancedForStatement
 //-------------------------------------------------------------------------
 
 TryStatement
-    = TRY
+    <- TRY
       ( Block (CatchClause* Finally / CatchClause+)
       / ResourceSpecification Block CatchClause* Finally?
       )
     ;
 
 CatchClause
-    = CATCH LPAR CatchFormalParameter RPAR Block ;
+    <- CATCH LPAR CatchFormalParameter RPAR Block ;
 
 CatchFormalParameter
-    = VariableModifier* CatchType VariableDeclaratorId ;
+    <- VariableModifier* CatchType VariableDeclaratorId ;
 
 CatchType
-    = UnannClassType (OR ClassType)* ;
+    <- UnannClassType (OR ClassType)* ;
 
 Finally
-    = FINALLY Block ;
+    <- FINALLY Block ;
 
 ResourceSpecification
-    = LPAR ResourceList SEMI? RPAR ;
+    <- LPAR ResourceList SEMI? RPAR ;
 
 ResourceList
-    = Resource (SEMI Resource)* ;
+    <- Resource (SEMI Resource)* ;
 
 Resource
-    = VariableModifier* UnannType VariableDeclaratorId EQU Expression ;
+    <- VariableModifier* UnannType VariableDeclaratorId EQU Expression ;
 
 
 //=========================================================================
@@ -1075,7 +1075,7 @@ Resource
 //-------------------------------------------------------------------------
 
 Expression
-    = LambdaExpression
+    <- LambdaExpression
     / AssignmentExpression
     ;
 
@@ -1084,10 +1084,10 @@ Expression
 //-------------------------------------------------------------------------
 
 Primary
-    = PrimaryBase PrimaryRest* ;
+    <- PrimaryBase PrimaryRest* ;
 
 PrimaryBase
-    = THIS
+    <- THIS
     / Literal
     / ParExpression
     / SUPER
@@ -1121,7 +1121,7 @@ PrimaryBase
     ;
 
 PrimaryRest
-    = DOT
+    <- DOT
       ( TypeArguments? Identifier Arguments  // MethodInvocation
       / Identifier  // FieldAccess
       / NEW ClassCreator  // Class creation
@@ -1131,28 +1131,28 @@ PrimaryRest
     ;
 
 ParExpression
-    = LPAR Expression RPAR ;
+    <- LPAR Expression RPAR ;
 
 //-------------------------------------------------------------------------
 //  JLS 15.9  Class Instance Creation Expressions
 //-------------------------------------------------------------------------
 
 // ClassInstanceCreationExpression
-//     = NEW ClassCreator
+//     <- NEW ClassCreator
 //     / Primary DOT NEW ClassCreator
 //     / QualIdent DOT NEW ClassCreator
 //     ;
 
 ClassCreator
-    = TypeArguments? Annotation* ClassTypeWithDiamond
+    <- TypeArguments? Annotation* ClassTypeWithDiamond
           Arguments ClassBody? ;
 
 ClassTypeWithDiamond
-    = Annotation* Identifier TypeArgumentsOrDiamond?
+    <- Annotation* Identifier TypeArgumentsOrDiamond?
           (DOT Annotation* Identifier TypeArgumentsOrDiamond?)* ;
 
 TypeArgumentsOrDiamond
-    = TypeArguments
+    <- TypeArguments
     / LPOINT RPOINT !DOT  // Must be last
     ;
 
@@ -1161,15 +1161,15 @@ TypeArgumentsOrDiamond
 //-------------------------------------------------------------------------
 
 ArrayCreator
-    = Type DimExpr+ Dim*
+    <- Type DimExpr+ Dim*
     / Type Dim+ ArrayInitializer
     ;
 
 DimExpr
-    = Annotation* LBRK Expression RBRK ;
+    <- Annotation* LBRK Expression RBRK ;
 
 // ArrayAccess
-//    = Primary LBRK Expression RBRK
+//    <- Primary LBRK Expression RBRK
 //    / QualIdent LBRK Expression RBRK
 //    ;
 
@@ -1178,7 +1178,7 @@ DimExpr
 //-------------------------------------------------------------------------
 
 // FieldAccess
-//    = Primary DOT Identifier
+//    <- Primary DOT Identifier
 //    / SUPER DOT Identifier
 //    / QualIdent DOT SUPER DOT Identifier
 //    ;
@@ -1188,7 +1188,7 @@ DimExpr
 //-------------------------------------------------------------------------
 
 // MethodInvocation
-//     = QualIdent Arguments
+//     <- QualIdent Arguments
 //     / Primary DOT TypeArguments? Identifier Arguments
 //     / QualIdent DOT TypeArguments Identifier Arguments
 //     / SUPER DOT TypeArguments? Identifier Arguments
@@ -1196,24 +1196,24 @@ DimExpr
 //     ;
 
 Arguments
-    = LPAR ArgumentList? RPAR ;
+    <- LPAR ArgumentList? RPAR ;
 
 ArgumentList
-    = Expression (COMMA Expression)* ;
+    <- Expression (COMMA Expression)* ;
 
 //-------------------------------------------------------------------------
 //  JLS 15.15  Unary Operators
 //-------------------------------------------------------------------------
 
 UnaryExpression
-    = (INC / DEC)(Primary / QualIdent)
+    <- (INC / DEC)(Primary / QualIdent)
     / PLUS UnaryExpression
     / MINUS UnaryExpression
     / UnaryExpressionNotPlusMinus
     ;
 
 UnaryExpressionNotPlusMinus
-    = TILDE UnaryExpression
+    <- TILDE UnaryExpression
     / BANG UnaryExpression
     / CastExpression
     / (Primary / QualIdent) (INC / DEC)?
@@ -1224,7 +1224,7 @@ UnaryExpressionNotPlusMinus
 //-------------------------------------------------------------------------
 
 CastExpression
-    = LPAR PrimitiveType RPAR UnaryExpression
+    <- LPAR PrimitiveType RPAR UnaryExpression
     / LPAR ReferenceType AdditionalBound* RPAR LambdaExpression
     / LPAR ReferenceType AdditionalBound* RPAR UnaryExpressionNotPlusMinus
     ;
@@ -1234,11 +1234,11 @@ CastExpression
 //-------------------------------------------------------------------------
 
 InfixExpression
-    = UnaryExpression
+    <- UnaryExpression
           ((InfixOperator UnaryExpression) / (INSTANCEOF ReferenceType))* ;
 
 InfixOperator
-    = OROR
+    <- OROR
     / ANDAND
     / OR
     / HAT
@@ -1264,7 +1264,7 @@ InfixOperator
 //-------------------------------------------------------------------------
 
 ConditionalExpression
-    = InfixExpression (QUERY Expression COLON Expression)* ;
+    <- InfixExpression (QUERY Expression COLON Expression)* ;
 
 //-------------------------------------------------------------------------
 //  JLS 15.26  Assignment Operators
@@ -1275,22 +1275,22 @@ ConditionalExpression
 //-------------------------------------------------------------------------
 
 AssignmentExpression
-    = Assignment
+    <- Assignment
     / ConditionalExpression
     ;
 
 Assignment
-    = LeftHandSide AssignmentOperator Expression ;
+    <- LeftHandSide AssignmentOperator Expression ;
 
 LeftHandSide
-//    = ArrayAccess
+//    <- ArrayAccess
 //    / FieldAccess
-    = Primary
+    <- Primary
     / QualIdent
     ;
 
 AssignmentOperator
-    = EQU
+    <- EQU
     / STAREQU
     / DIVEQU
     / MODEQU
@@ -1309,19 +1309,19 @@ AssignmentOperator
 //-------------------------------------------------------------------------
 
 LambdaExpression
-    = LambdaParameters ARROW LambdaBody ;
+    <- LambdaParameters ARROW LambdaBody ;
 
 LambdaParameters
-    = Identifier
+    <- Identifier
     / LPAR FormalParameterList? RPAR
     / LPAR InferredFormalParameterList RPAR
     ;
 
 InferredFormalParameterList
-    = Identifier (COMMA Identifier)* ;
+    <- Identifier (COMMA Identifier)* ;
 
 LambdaBody
-    = Expression
+    <- Expression
     / Block
     ;
 
@@ -1330,4 +1330,4 @@ LambdaBody
 //-------------------------------------------------------------------------
 
 ConstantExpression
-    = Expression ;
+    <- Expression ;
