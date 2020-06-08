@@ -175,9 +175,9 @@ class MemoTable
             i++
         }
         if (Grammar.DEBUG) {
-            println(
-                    if (newMatch != null) "Matched: " else "Failed to match: ${memoKey.toStringWithRuleNames()}"
-            )
+            val prefix = if (newMatch != null) "Matched: " else "Failed to match: "
+            val withRuleNames = memoKey.toStringWithRuleNames()
+            println("${prefix}${withRuleNames}")
         }
     }
 
