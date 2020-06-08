@@ -94,7 +94,7 @@ class EndToEndTest : FunSpec({
         firstSubclauseMatchOfLastMatch.key.shouldBeNull()
 
         val subClauseString = firstSubclauseMatchOfLastMatch.value.toStringWithRuleNames()
-        subClauseString shouldBe("Statement <- var:[a-z]+ '=' E '' : 0+23")
+        subClauseString shouldBe("Statement <- var:[a-z]+ '=' E ';' : 0+23")
     }
 
     test("Can parse Java") {
