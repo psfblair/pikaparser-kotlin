@@ -1,14 +1,15 @@
 # Layout-sensitive pika parser
 
-This version of the pika parsing algorithm is designed to allow for parsing layout-sensitive
-languages such as Haskell, F#, Elm, and Python. It is based on the reference implementation 
+This version of the pika parsing algorithm is based on the reference implementation 
 of the pika parsing algorithm, described in the paper:
 
 [Pika parsing: parsing in reverse solves the left recursion and error recovery problems. Luke A. D. Hutchison, May 2020.](https://arxiv.org/abs/2005.06444)
 
-It has, however, been completely rewritten in Kotlin from the original Java.
+It has, however, been migrated to Kotlin from the original Java. The ultimate goal of
+this implementation is to allow for parsing whitespace-sensitive layout syntax as is
+used in languages such as Haskell, F#, Elm, and Python.
 
-From the README of that project:
+From the README of the reference implementation project:
 
 Pika parsing is the inverse of packrat parsing: instead of parsing top-down, left to right, 
 pika parsing parses right to left, bottom-up, using dynamic programming. This reversed parsing 
