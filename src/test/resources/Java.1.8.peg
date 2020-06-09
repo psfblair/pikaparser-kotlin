@@ -1,14 +1,17 @@
 Compilation
     <- Spacing CompilationUnit SUB? EOT;
 
+_ <- [ -~] ;
 SUB <- "\t" ;
 EOT <- !_ ;
-_ <- [ -~] ;
+
+Star <- '*' ;
+NonCloseComment <- [^/] / !Star '/' ;
 
 Spacing
     <- ( [ \t\r\n]+
-      / "/*" _+ "*/"
-      / "//" _+ [\r\n]
+      / "/*" NonCloseComment* "*/"
+      / "//" [^\r\n]* [\r\n]
       )* ;
 
 Identifier  <- !Keyword Letter LetterOrDigit* Spacing ;
