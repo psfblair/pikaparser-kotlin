@@ -35,7 +35,8 @@
 
 package net.phobot.parser.utils
 
-import java.util.*
+import java.util.NavigableMap
+import java.util.TreeMap
 import kotlin.math.max
 import kotlin.math.min
 
@@ -110,31 +111,30 @@ class IntervalUnion {
     fun rangeOverlaps(startPos: Int, endPos: Int): Boolean {
         // Range overlap test: https://stackoverflow.com/a/25369187/3950982
         // (Need to repeat for both floor entry and ceiling entry)
+
         val floorEntry = nonOverlappingRanges.floorEntry(startPos)
-        if (floorEntry != null) {
-            val floorEntryStart = floorEntry.key
-            val floorEntryEnd = floorEntry.value
-
-            val spanBetweenExtremes = max(endPos, floorEntryEnd) - min(startPos, floorEntryStart)
-            val sumOfTheLengths = (endPos - startPos) + (floorEntryEnd - floorEntryStart)
-
-            if (spanBetweenExtremes < sumOfTheLengths) {
-                return true
-            }
+        if (overlaps(startPos, endPos, floorEntry)) {
+            return true
         }
 
         val ceilEntry = nonOverlappingRanges.ceilingEntry(startPos)
-        if (ceilEntry != null) {
-            val ceilEntryStart = ceilEntry.key
-            val ceilEntryEnd = ceilEntry.value
-
-            val spanBetweenExtremes = max(endPos, ceilEntryEnd) - min(startPos, ceilEntryStart)
-            val sumOfTheLengths = (endPos - startPos) + (ceilEntryEnd - ceilEntryStart)
-
-            if (spanBetweenExtremes < sumOfTheLengths) {
-                return true
-            }
+        if (overlaps(startPos, endPos, ceilEntry)) {
+            return true
         }
         return false
+    }
+
+    private fun overlaps(startPos: Int, endPos: Int, rangeEntry: MutableMap.MutableEntry<Int, Int>?): Boolean {
+        if(rangeEntry != null) {
+            val entryStart = rangeEntry.key
+            val entryEnd = rangeEntry.value
+
+            val spanBetweenExtremes = max(endPos, entryEnd) - min(startPos, entryStart)
+            val sumOfTheLengths = (endPos - startPos) + (entryEnd - entryStart)
+
+            return spanBetweenExtremes < sumOfTheLengths
+        } else {
+            return false
+        }
     }
 }
