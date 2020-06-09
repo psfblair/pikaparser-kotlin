@@ -61,15 +61,15 @@ class Rule
     }
 
     init {
-        var astNodeLabel: String? = null
-        var clauseToUse = clause
         if (clause is ASTNodeLabel) {
             // Transfer ASTNodeLabel.astNodeLabel to astNodeLabel
-            astNodeLabel = clause.astNodeLabel
+            val astNodeLabel = clause.astNodeLabel
             // skip over ASTNodeLabel node when adding subClause to subClauses array
-            clauseToUse = clause.labeledSubClauses[0].clause
+            val clauseToUse = clause.labeledSubClauses[0].clause
+            this.labeledClause = LabeledClause(clauseToUse, astNodeLabel)
+        } else {
+            this.labeledClause = LabeledClause(clause, null)
         }
-        this.labeledClause = LabeledClause(clauseToUse, astNodeLabel)
     }
 
     /** Construct a rule with no specified precedence or associativity.  */
