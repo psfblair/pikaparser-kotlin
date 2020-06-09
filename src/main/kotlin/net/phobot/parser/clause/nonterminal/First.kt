@@ -43,7 +43,7 @@ import java.util.stream.Collectors
 import kotlin.streams.asStream
 
 /** The First (ordered choice) PEG operator.  */
-class First(vararg subClauses: Clause) : Clause(*subClauses) {
+class First(subClauses: Array<Clause>) : Clause(subClauses) {
     init {
         require(subClauses.size >= 2) { "${First::class.simpleName} expects 2 or more subclauses" }
     }

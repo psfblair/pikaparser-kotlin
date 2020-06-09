@@ -44,7 +44,7 @@ import java.util.stream.Collectors
 import kotlin.streams.asStream
 
 /** The Seq (sequence) PEG operator.  */
-class Seq(vararg subClauses: Clause) : Clause(*subClauses) {
+class Seq(subClauses: Array<Clause>) : Clause(subClauses) {
     init {
         require(subClauses.size >= 2) { "${Seq::class.simpleName} expects 2 or more subclauses" }
     }

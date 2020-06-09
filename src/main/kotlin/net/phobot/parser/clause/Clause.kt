@@ -30,7 +30,6 @@
  * // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * // DEALINGS IN THE SOFTWARE.
  * //
- *
  */
 
 package net.phobot.parser.clause
@@ -54,9 +53,12 @@ abstract class Clause
 // -------------------------------------------------------------------------------------------------------------
 
 /** Clause constructor.  */
-protected constructor(vararg subClauses: Clause) {
+protected constructor(subClauses: Array<Clause>) {
     /** Subclauses, paired with their AST node label (if there is one).  */
     val labeledSubClauses: Array<LabeledClause>
+
+    constructor(subClause: Clause) : this(arrayOf(subClause))
+    constructor(): this(emptyArray())
 
     init {
         require(subClauses.isEmpty() || subClauses[0] !is Nothing)

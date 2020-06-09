@@ -59,11 +59,6 @@ object ClauseFactory {
         return Rule(ruleName, precedence, associativity, clause)
     }
 
-    /** Construct a [Seq] clause.  */
-    fun seq(subClause1: Clause, subClause2: Clause, vararg subClauses: Clause): Clause {
-        return Seq(subClause1, subClause2, *subClauses)
-    }
-
     /** Construct a [OneOrMore] clause.  */
     fun oneOrMore(subClause: Clause): Clause {
         // It doesn't make sense to wrap these clause types in OneOrMore, but the OneOrMore should have
@@ -81,18 +76,13 @@ object ClauseFactory {
     /** Construct an [Optional] clause.  */
     fun optional(subClause: Clause): Clause {
         // Optional(X) -> First(X, Nothing)
-        return first(subClause, nothing())
+        return First(arrayOf(subClause, nothing()))
     }
 
     /** Construct a [ZeroOrMore] clause.  */
     fun zeroOrMore(subClause: Clause): Clause {
         // ZeroOrMore(X) => Optional(OneOrMore(X)) => First(OneOrMore(X), Nothing)
         return optional(oneOrMore(subClause))
-    }
-
-    /** Construct a [First] clause.  */
-    fun first(subClause1: Clause, subClause2: Clause, vararg subClauses: Clause): Clause {
-        return First(subClause1, subClause2, *subClauses)
     }
 
     /** Construct a [FollowedBy] clause.  */
