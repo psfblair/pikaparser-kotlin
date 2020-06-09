@@ -36,10 +36,12 @@
 
 package net.phobot.parser
 
+// import io.kotest.assertions.
 import io.kotest.core.spec.style.FunSpec
 import net.phobot.parser.Benchmark.Benchmark.executeInTimedLoop
 import net.phobot.parser.TestUtils.loadResourceFile
 import net.phobot.parser.grammar.MetaGrammar
+import net.phobot.parser.memotable.MemoTable
 import java.util.*
 
 
@@ -96,11 +98,11 @@ macOS 10.13.6
 IntelliJ IDEA 2020.1
 Results in seconds
 ===================== RESULTS FOR arithmetic=====================
-DoubleSummaryStatistics{count=100, sum=1.411002, min=0.004237, average=0.014110, max=0.138630}
+DoubleSummaryStatistics{count=100, sum=1.394441, min=0.004973, average=0.013944, max=0.252265}
 
 ===================== RESULTS FOR java-grammar=====================
-DoubleSummaryStatistics{count=100, sum=64.900815, min=0.504230, average=0.649008, max=0.940517}
+DoubleSummaryStatistics{count=100, sum=63.733993, min=0.499645, average=0.637340, max=1.354979}
 
 ===================== RESULTS FOR java-parse=====================
-DoubleSummaryStatistics{count=100, sum=104.870638, min=0.831826, average=1.048706, max=1.343483}
+DoubleSummaryStatistics{count=100, sum=103.694866, min=0.826100, average=1.036949, max=1.479693}
  */

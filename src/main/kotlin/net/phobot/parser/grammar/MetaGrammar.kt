@@ -41,16 +41,17 @@ import net.phobot.parser.clause.ClauseFactory
 import net.phobot.parser.clause.ClauseFactory.ast
 import net.phobot.parser.clause.ClauseFactory.c
 import net.phobot.parser.clause.ClauseFactory.cRange
+import net.phobot.parser.clause.ClauseFactory.first
 import net.phobot.parser.clause.ClauseFactory.nothing
 import net.phobot.parser.clause.ClauseFactory.oneOrMore
 import net.phobot.parser.clause.ClauseFactory.optional
 import net.phobot.parser.clause.ClauseFactory.rule
 import net.phobot.parser.clause.ClauseFactory.ruleRef
+import net.phobot.parser.clause.ClauseFactory.seq
 import net.phobot.parser.clause.ClauseFactory.start
 import net.phobot.parser.clause.ClauseFactory.str
 import net.phobot.parser.clause.ClauseFactory.zeroOrMore
 import net.phobot.parser.clause.nonterminal.First
-import net.phobot.parser.clause.nonterminal.Seq
 import net.phobot.parser.grammar.Rule.Associativity
 import net.phobot.parser.utils.ParserInfo
 import net.phobot.parser.utils.StringUtils
@@ -113,12 +114,12 @@ object MetaGrammar {
     var grammar = Grammar(
             listOf(
                 rule(GRAMMAR,
-                        Seq(arrayOf(start(), ruleRef(WSC), oneOrMore(ruleRef(RULE))))
+                        seq(start(), ruleRef(WSC), oneOrMore(ruleRef(RULE)))
                 ),
 
                 rule(RULE,
                         ast(RULE_AST,
-                                Seq(arrayOf(ruleRef(IDENT),
+                                seq(ruleRef(IDENT),
                                         ruleRef(WSC),
                                         optional(ruleRef(PREC)),
                                         str("<-"),
@@ -126,99 +127,97 @@ object MetaGrammar {
                                         ruleRef(CLAUSE),
                                         ruleRef(WSC),
                                         c(';'),
-                                        ruleRef(WSC))))
+                                        ruleRef(WSC)))
                 ),
 
                 // Define precedence order for clause sequences
 
                 // Parens
                 rule(CLAUSE, precedence = 8, associativity = null,
-                        clause = Seq(arrayOf(c('('), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC), c(')')))
+                        clause = seq(c('('), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC), c(')'))
                 ),
 
                 // Terminals
                 rule(CLAUSE, precedence = 7, associativity = null,
-                        clause = First(arrayOf(
+                        clause = first(
                                     ruleRef(IDENT),
                                     ruleRef(QUOTED_STRING),
                                     ruleRef(CHAR_SET),
                                     ruleRef(NOTHING),
-                                    ruleRef(START)))
+                                    ruleRef(START))
                 ),
 
                 // OneOrMore / ZeroOrMore
                 rule(CLAUSE, precedence = 6, associativity = null,
-                        clause = First(arrayOf(
-                                    Seq(arrayOf(ast(ONE_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('+'))),
-                                    Seq(arrayOf(ast(ZERO_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('*')))
-                        ))
+                        clause = first(
+                                    seq(ast(ONE_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('+')),
+                                    seq(ast(ZERO_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('*')))
                 ),
 
                 // FollowedBy / NotFollowedBy
                 rule(CLAUSE, precedence = 5, associativity = null,
-                        clause = First(arrayOf(
-                                    Seq(arrayOf(c('&'), ast(FOLLOWED_BY_AST, ruleRef(CLAUSE)))),
-                                    Seq(arrayOf(c('!'), ast(NOT_FOLLOWED_BY_AST, ruleRef(CLAUSE))))
-                        ))
+                        clause = first(
+                                    seq(c('&'), ast(FOLLOWED_BY_AST, ruleRef(CLAUSE))),
+                                    seq(c('!'), ast(NOT_FOLLOWED_BY_AST, ruleRef(CLAUSE))))
                 ),
 
                 // Optional
                 rule(CLAUSE, precedence = 4, associativity = null,
-                        clause = Seq(arrayOf(ast(OPTIONAL_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('?')))
+                        clause = seq(ast(OPTIONAL_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('?'))
                 ),
 
                 // ASTNodeLabel
                 rule(CLAUSE, precedence = 3, associativity = null,
                         clause = ast(LABEL_AST,
-                                        Seq(arrayOf(ast(LABEL_NAME_AST,
+                                        seq(ast(LABEL_NAME_AST,
                                                 ruleRef(IDENT)),
                                                 ruleRef(WSC),
                                                 c(':'),
                                                 ruleRef(WSC),
                                                 ast(LABEL_CLAUSE_AST, ruleRef(CLAUSE)),
-                                                ruleRef(WSC))))
+                                                ruleRef(WSC)))
                 ),
 
                 // Seq
                 rule(CLAUSE, precedence = 2, associativity = null,
                         clause = ast(SEQ_AST,
-                                        Seq(arrayOf(ruleRef(CLAUSE),
+                                        seq(ruleRef(CLAUSE),
                                             ruleRef(WSC),
-                                            oneOrMore(Seq(arrayOf(ruleRef(CLAUSE), ruleRef(WSC)))))))
+                                            oneOrMore(seq(ruleRef(CLAUSE), ruleRef(WSC)))))
                 ),
 
                 // First
                 rule(CLAUSE, precedence = 1, associativity = null,
                         clause = ast(FIRST_AST,
-                                        Seq(arrayOf(ruleRef(CLAUSE),
+                                        seq(ruleRef(CLAUSE),
                                             ruleRef(WSC),
-                                            oneOrMore(Seq(arrayOf(c('/'), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC)))))))
+                                            oneOrMore(seq(c('/'), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC)))))
                 ),
 
                 // Whitespace or comment
                 rule(WSC,
                         zeroOrMore(
-                                First(arrayOf(
+                                first(
                                         c(' ', '\n', '\r', '\t'),
                                         ruleRef(COMMENT)
-                                ))
+                                )
                         )
                 ),
 
                 // Comment
                 rule(COMMENT,
-                        Seq(arrayOf(
+                        seq(
                                 c('#'),
                                 zeroOrMore(
                                         c('\n').invert()
                                 )
-                        ))
+                        )
                 ),
 
                 // Identifier
                 rule(IDENT,
                         ast(IDENT_AST,
-                                Seq(arrayOf(ruleRef(NAME_CHAR), zeroOrMore(First(arrayOf(ruleRef(NAME_CHAR), cRange('0', '9')))))))
+                                seq(ruleRef(NAME_CHAR), zeroOrMore(first(ruleRef(NAME_CHAR), cRange('0', '9')))))
                 ),
 
                 // Number
@@ -233,84 +232,72 @@ object MetaGrammar {
 
                 // Precedence and optional associativity modifiers for rule name
                 rule(PREC,
-                        Seq(arrayOf(c('['),
+                        seq(c('['),
                             ruleRef(WSC),
                             ast(PREC_AST, ruleRef(NUM)),
                             ruleRef(WSC),
-                            optional(Seq(arrayOf(c(','),
+                            optional(seq(c(','),
                                          ruleRef(WSC),
-                                         First(arrayOf(ast(R_ASSOC_AST,
-                                                            First(arrayOf(c('r'), c('R')))),
-                                                       ast(L_ASSOC_AST,
-                                                            First(arrayOf(c('l'), c('L'))))
-                                         )),
-                                         ruleRef(WSC))
-                                     )),
-                            c(']'),
-                            ruleRef(WSC)
-                        ))
+                                         first(ast(R_ASSOC_AST, first(c('r'), c('R'))),
+                                               ast(L_ASSOC_AST, first(c('l'), c('L')))),
+                                         ruleRef(WSC))),
+                            c(']'), ruleRef(WSC))
                 ),
 
                 // Character set
                 rule(CHAR_SET,
-                        First(arrayOf(
-                            Seq(arrayOf(c('\''),
+                        first(
+                            seq(c('\''),
                                 ast(SINGLE_QUOTED_CHAR_AST, ruleRef(SINGLE_QUOTED_CHAR)),
                                 c('\'')
-                            )),
-                            Seq(arrayOf(c('['),
-                                ast(CHAR_RANGE_AST, Seq(arrayOf(optional(c('^')),
-                                                        oneOrMore(First(arrayOf(
+                            ),
+                            seq(c('['),
+                                ast(CHAR_RANGE_AST, seq(optional(c('^')),
+                                                        oneOrMore(first(
                                                                     ruleRef(CHAR_RANGE),
                                                                     ruleRef(CHAR_RANGE_CHAR))))
-                                                    ))),
-                                c(']')
-                            ))
-                        ))
+                                ),
+                                c(']')))
                 ),
 
                 // Single quoted character
                 rule(SINGLE_QUOTED_CHAR,
-                        First(arrayOf(
+                        first(
                             ruleRef(ESCAPED_CTRL_CHAR),
-                            c('\'', '"').invert()
-                        )) // TODO: replace invert() with NotFollowedBy
+                            c('\'', '"').invert()) // TODO: replace invert() with NotFollowedBy
                 ),
 
                 // Char range
                 rule(CHAR_RANGE,
-                        Seq(arrayOf(ruleRef(CHAR_RANGE_CHAR),
+                        seq(ruleRef(CHAR_RANGE_CHAR),
                             c('-'),
-                            ruleRef(CHAR_RANGE_CHAR)
-                        ))
+                            ruleRef(CHAR_RANGE_CHAR))
                 ),
 
                 // Char range character
                 rule(CHAR_RANGE_CHAR,
-                        First(arrayOf(
+                        first(
                             c('\\', ']').invert(),
                             ruleRef(ESCAPED_CTRL_CHAR),
                             str("\\\\"),
                             str("\\]"),
-                            str("\\^")
-                        ))
+                            str("\\^"))
                 ),
 
                 // Quoted string
                 rule(QUOTED_STRING,
-                        Seq(arrayOf(c('"'),
+                        seq(c('"'),
                             ast(QUOTED_STRING_AST,
                             zeroOrMore(ruleRef(STR_QUOTED_CHAR))),
-                            c('"')
-                        ))
+                            c('"'))
                 ),
 
                 // Character within quoted string
                 rule(STR_QUOTED_CHAR,
-                        First(arrayOf(
+                        first(
                             ruleRef(ESCAPED_CTRL_CHAR),
                             c('"', '\\').invert()
-                        ))
+                        )
                 ),
 
                 // Hex digit
@@ -321,7 +308,7 @@ object MetaGrammar {
 
                 // Escaped control character
                 rule(ESCAPED_CTRL_CHAR,
-                        First(arrayOf(
+                        first(
                                 str("\\t"),
                                 str("\\b"),
                                 str("\\n"),
@@ -330,17 +317,15 @@ object MetaGrammar {
                                 str("\\'"),
                                 str("\\\""),
                                 str("\\\\"),
-                                Seq(arrayOf(str("\\u"), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX)))
-                        ))
+                                seq(str("\\u"), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX)))
                 ),
 
                 // Nothing (empty string match)
                 rule(NOTHING,
-                        ast(NOTHING_AST, Seq(arrayOf(
+                        ast(NOTHING_AST, seq(
                                             c('('),
                                             ruleRef(WSC),
-                                            c(')')
-                        )))
+                                            c(')')))
                 ),
 
                 // Match start position
@@ -416,13 +401,14 @@ object MetaGrammar {
         val size = childASTNodes.size
         require (size > 1) { "Must have at least 2 child AST nodes for ${clauseType.typeName}, got ${size}: ${astNode}" }
 
+        val nodesAfterSecond = childASTNodes.slice(indices = 2 until size).toTypedArray()
         val clauseConstructor = clauseType.clauseConstructor
-        return clauseConstructor(childASTNodes)
+        return clauseConstructor(childASTNodes[0], childASTNodes[1], nodesAfterSecond)
     }
 
-    enum class MultiChildClauseType(val typeName: String, val clauseConstructor: (Array<Clause>) -> Clause) {
-        SEQ   ("Seq", ::Seq),
-        FIRST ("First", ::First),
+    enum class MultiChildClauseType(val typeName: String, val clauseConstructor: (Clause, Clause, Array<Clause>) -> Clause) {
+        SEQ   ("Seq", ClauseFactory::seq),
+        FIRST ("First", ClauseFactory::first),
     }
 
     private fun charRangeClause(astNode: ASTNode): Clause {

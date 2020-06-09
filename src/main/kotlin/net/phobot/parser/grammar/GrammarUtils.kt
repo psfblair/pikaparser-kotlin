@@ -213,7 +213,7 @@ object GrammarUtils {
                             // climbs precedence to the next level:
                             // E[i] <- X E Y  =>  E[i] <- X (E[i] / E[(i+1)%N]) Y
                             subClause.referencedRuleName = currPrecRuleName
-                            clause.labeledSubClauses[i].clause = First(arrayOf(subClause, RuleRef(nextHighestPrecRuleName)))
+                            clause.labeledSubClauses[i].clause = First(subClause, RuleRef(nextHighestPrecRuleName))
                         }
                         selfRefsSoFar++
                     }
@@ -288,7 +288,7 @@ object GrammarUtils {
             if (precedenceIdx < numPrecedenceLevels - 1) {
                 // Move rule's toplevel clause (and any AST node label it has) into the first subclause of
                 // a First clause that fails over to the next highest precedence level
-                val first = First(arrayOf(rule.labeledClause.clause, RuleRef(nextHighestPrecRuleName)))
+                val first = First(rule.labeledClause.clause, RuleRef(nextHighestPrecRuleName))
                 // Move any AST node label down into first subclause of new First clause, so that label doesn't
                 // apply to the final failover rule reference
                 first.labeledSubClauses[0].astNodeLabel = rule.labeledClause.astNodeLabel
