@@ -40,7 +40,9 @@ import net.phobot.parser.clause.Clause
 import net.phobot.parser.clause.nonterminal.NotFollowedBy
 import net.phobot.parser.grammar.Grammar
 import net.phobot.parser.utils.IntervalUnion
-import java.util.*
+import java.util.NavigableMap
+import java.util.TreeMap
+import java.util.PriorityQueue
 import java.util.AbstractMap.SimpleEntry
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.collections.Map.Entry
@@ -224,7 +226,7 @@ class MemoTable
      * Get any syntax errors in the parse, as a map from start position to a tuple, (end position, span of input
      * string between start position and end position).
      */
-    fun getSyntaxErrors(vararg syntaxCoverageRuleNames: String): NavigableMap<Int, Entry<Int, String>> {
+    fun getSyntaxErrors(syntaxCoverageRuleNames: Array<String>): NavigableMap<Int, Entry<Int, String>> {
         // Find the range of characters spanned by matches for each of the coverageRuleNames
         val parsedRanges = IntervalUnion()
         for (coverageRuleName in syntaxCoverageRuleNames) {
@@ -237,8 +239,8 @@ class MemoTable
         val unparsedRanges = parsedRanges.invert(0, input.length).nonOverlappingRanges
         // Extract the input string span for each unparsed range
         val syntaxErrorSpans = TreeMap<Int, Entry<Int, String>>()
-        unparsedRanges.entries.stream().forEach { ent ->
-            val entry = SimpleEntry<Int, String>(ent.value, input.substring(ent.key, ent.value))
+        unparsedRanges.entries.stream().forEach { ent: Entry<Int, Int> ->
+            val entry = SimpleEntry(ent.value, input.substring(ent.key, ent.value))
             syntaxErrorSpans[ent.key] = entry
         }
         return syntaxErrorSpans

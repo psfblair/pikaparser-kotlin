@@ -44,7 +44,6 @@ import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
 import java.util.*
-import java.util.function.Function
 import kotlin.collections.Map.Entry
 import kotlin.math.max
 
@@ -153,11 +152,11 @@ object ParserInfo {
         }
 
         cycleDepthToMatches.computeIfAbsent(
-                cycleDepth,  { elem: Int? -> TreeMap(Collections.reverseOrder()) }
+                cycleDepth,  { _ -> TreeMap(Collections.reverseOrder()) }
         )
 
         cycleDepthToMatches[cycleDepth]!!.computeIfAbsent(
-                match.memoKey.clause.clauseIdx, { k: Int? -> TreeMap() }
+                match.memoKey.clause.clauseIdx, { _ -> TreeMap() }
         )
 
         cycleDepthToMatches[cycleDepth]!![match.memoKey.clause.clauseIdx]!![match.memoKey.startPos] = match
@@ -511,7 +510,7 @@ object ParserInfo {
             println("\nRule \"$topLevelRuleName\" does not exist")
         }
 
-        val syntaxErrors = memoTable.getSyntaxErrors(*syntaxCoverageRuleNames)
+        val syntaxErrors = memoTable.getSyntaxErrors(syntaxCoverageRuleNames)
         if (syntaxErrors.isNotEmpty()) {
             printSyntaxErrors(syntaxErrors)
         }

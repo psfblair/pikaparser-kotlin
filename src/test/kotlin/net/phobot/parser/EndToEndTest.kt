@@ -42,9 +42,6 @@ import io.kotest.matchers.shouldBe
 import net.phobot.parser.TestUtils.loadResourceFile
 import net.phobot.parser.grammar.MetaGrammar
 import net.phobot.parser.utils.ParserInfo
-import java.nio.file.Files
-import java.nio.file.Paths
-import kotlin.jvm.javaClass
 
 class EndToEndTest : FunSpec({
     test("Can parse arithmetic") {
@@ -106,7 +103,7 @@ class EndToEndTest : FunSpec({
         // Huge output; only do this if you have a big buffer
         // ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
 
-        val syntaxErrors = memoTable.getSyntaxErrors(* recoveryRuleNames)
+        val syntaxErrors = memoTable.getSyntaxErrors(recoveryRuleNames)
         if (! syntaxErrors.isEmpty()) {
             ParserInfo.printSyntaxErrors(syntaxErrors);
         }

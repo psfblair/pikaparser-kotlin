@@ -455,8 +455,8 @@ object MetaGrammar {
         //        }
 
         val precedenceOfFirst = GrammarPrecedenceLevels.clauseTypeToPrecedence[First::class]
-        val syntaxCoverageRuleNames = arrayOf(GRAMMAR, RULE, "${CLAUSE}[${precedenceOfFirst}]")
-        val syntaxErrors = memoTable.getSyntaxErrors(*syntaxCoverageRuleNames)
+        val syntaxErrors = memoTable.getSyntaxErrors(arrayOf(GRAMMAR, RULE, "${CLAUSE}[${precedenceOfFirst}]")
+        )
 
         if (syntaxErrors.isNotEmpty()) {
             ParserInfo.printSyntaxErrors(syntaxErrors)
