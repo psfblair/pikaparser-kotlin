@@ -39,6 +39,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 // import io.kotest.assertions.
 import io.kotest.matchers.shouldBe
+import net.phobot.parser.TestUtils.loadResourceFile
 import net.phobot.parser.grammar.MetaGrammar
 import net.phobot.parser.utils.ParserInfo
 import java.nio.file.Files
@@ -46,11 +47,6 @@ import java.nio.file.Paths
 import kotlin.jvm.javaClass
 
 class EndToEndTest : FunSpec({
-    fun loadResourceFile(filename:String): String {
-        val resourceUrl = javaClass.getClassLoader().getResource(filename)!!.toURI()
-        return Files.readAllLines(Paths.get(resourceUrl)).joinToString(separator = "")
-    }
-    
     test("Can parse arithmetic") {
         val grammarSpec = loadResourceFile("arithmetic.grammar")
         val grammar = MetaGrammar.parse(grammarSpec)
@@ -107,9 +103,15 @@ class EndToEndTest : FunSpec({
         val topRuleName = "Compilation"
         val recoveryRuleNames = arrayOf(topRuleName, "CompilationUnit")
 
-        ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
-    }
+        // Huge output; only do this if you have a big buffer
+        // ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
 
+        val syntaxErrors = memoTable.getSyntaxErrors(* recoveryRuleNames)
+        if (! syntaxErrors.isEmpty()) {
+            ParserInfo.printSyntaxErrors(syntaxErrors);
+        }
+   }
+/*
     test("Can parse C") {
         val grammarSpec = loadResourceFile("C.peg")
         val grammar = MetaGrammar.parse(grammarSpec)
@@ -122,4 +124,5 @@ class EndToEndTest : FunSpec({
 
         ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
     }
+*/
 })
