@@ -1,13 +1,14 @@
 Compilation
     <- Spacing CompilationUnit SUB? EOT;
 
-SUB <- "\u001a" ;
+SUB <- "\t" ;
 EOT <- !_ ;
+_ <- [ -~] ;
 
 Spacing
-    <- ( [ \t\r\n\u000C]+
-      / "/*" _*+ "*/"
-      / "//" _*+ [\r\n]
+    <- ( [ \t\r\n]+
+      / "/*" _+ "*/"
+      / "//" _+ [\r\n]
       )* ;
 
 Identifier  <- !Keyword Letter LetterOrDigit* Spacing ;
@@ -170,7 +171,7 @@ DecimalFloatingPointLiteral
     ;
 
 Exponent
-    <- [eE] [+\-]? Digits ;
+    <- [eE] [+]? Digits ;
 
 HexadecimalFloatingPointLiteral
     <- HexSignificand BinaryExponent [fFdD]? ;
@@ -187,7 +188,7 @@ HexDigit
     <- [a-f] / [A-F] / [0-9] ;
 
 BinaryExponent
-    <- [pP] [+\-]? Digits ;
+    <- [pP] [+]? Digits ;
 
 Digits
     <- [0-9]([_]*[0-9])* ;
@@ -254,7 +255,7 @@ INC             <-   "++"      Spacing ;
 LE              <-   "<="      Spacing ;
 LPOINT          <-   "<"       Spacing ;
 LT              <-   "<"![=<]  Spacing ;
-MINUS           <-   "-"![=\->]Spacing ;
+MINUS           <-   "-"![=>]Spacing ;
 MINUSEQU        <-   "-="      Spacing ;
 MOD             <-   "%"![=]   Spacing ;
 MODEQU          <-   "%="      Spacing ;
@@ -900,7 +901,7 @@ CastExpression
 
 InfixExpression
     <- UnaryExpression
-          ((InfixOperator UnaryExpression) / (INSTANCEOF ReferenceType))* ;
+          (InfixOperator UnaryExpression)* ;
 
 InfixOperator
     <- OROR

@@ -104,8 +104,8 @@ class EndToEndTest : FunSpec({
         val input = loadResourceFile("MemoTable.java")
         val memoTable = grammar.parse(input)
 
-        val topRuleName = "Program"
-        val recoveryRuleNames = arrayOf(topRuleName, "Statement")
+        val topRuleName = "Compilation"
+        val recoveryRuleNames = arrayOf(topRuleName, "CompilationUnit")
 
         ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
     }
