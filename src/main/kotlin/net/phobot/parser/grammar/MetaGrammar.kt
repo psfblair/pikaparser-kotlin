@@ -55,7 +55,7 @@ import net.phobot.parser.clause.nonterminal.First
 import net.phobot.parser.grammar.Rule.Associativity
 import net.phobot.parser.utils.ParserInfo
 import net.phobot.parser.utils.StringUtils
-
+import kotlin.streams.toList
 
 
 /**
@@ -332,22 +332,11 @@ object MetaGrammar {
                 rule(START, ast(START_AST, c('^')))
             ))
 
-    /** Recursively parse a list of AST nodes.  */
+    /** Recursively convert a list of AST nodes into a list of Clauses. */
     private fun parseASTNodes(astNodes: List<ASTNode>): List<Clause> {
-        val clauses = ArrayList<Clause>(astNodes.size)
-        var nextNodeLabel: String? = null
-        for (i in astNodes.indices) {
-            val astNode = astNodes[i]
-            // Create a Clause from the ASTNode
-            var clause = parseASTNode(astNode)
-            if (nextNodeLabel != null) {
-                // Label the Clause with the preceding label, if present
-                clause = ast(nextNodeLabel, clause)
-                nextNodeLabel = null
-            }
-            clauses.add(clause)
-        }
-        return clauses
+        return astNodes
+                .stream()
+                .map { node -> parseASTNode(node)}.toList()
     }
 
     /** Recursively parse a single AST node.  */
