@@ -73,7 +73,7 @@ object RuleParser {
         }
 
         val astNode = ruleNode.getChild(ruleNode.children.size - 1)
-        val clause = MetaGrammarAstNodeParser.parseASTNode(astNode)
+        val clause = AstNodeParser.parseASTNode(astNode)
         return rule(ruleName, precedence, associativity, clause)
     }
 }

@@ -476,7 +476,7 @@ object MetaGrammar {
         //            println("    " + clause.toStringWithRuleNames())
         //        }
 
-        val precedenceOfFirst = GrammarPrecedenceLevels.clauseTypeToPrecedence[First::class]
+        val precedenceOfFirst = PrecedenceLevels.clauseTypeToPrecedence[First::class]
         val syntaxErrors = memoTable.getSyntaxErrors(arrayOf(
                 GRAMMAR_RULENAME, RULE_RULENAME, "${CLAUSE_RULENAME}[${precedenceOfFirst}]")
         )

@@ -36,14 +36,14 @@
 package net.phobot.parser.clause.aux
 
 import net.phobot.parser.clause.Clause
-import net.phobot.parser.grammar.GrammarPrecedenceLevels
+import net.phobot.parser.grammar.PrecedenceLevels
 
 /** A container for grouping a subclause together with its AST node label.  */
 class LabeledClause(var clause: Clause, var astNodeLabel: String?) {
 
     /** Call [.toString], prepending any AST node label.  */
     fun toStringWithASTNodeLabel(parentClause: Clause?): String {
-        var addParens = (parentClause != null && GrammarPrecedenceLevels.needToAddParensAroundSubClause(parentClause, clause))
+        var addParens = (parentClause != null && PrecedenceLevels.needToAddParensAroundSubClause(parentClause, clause))
 
         if (astNodeLabel == null && !addParens) {
             // Fast path
@@ -53,7 +53,7 @@ class LabeledClause(var clause: Clause, var astNodeLabel: String?) {
         if (astNodeLabel != null) {
             buf.append(astNodeLabel)
             buf.append(':')
-            addParens = addParens or GrammarPrecedenceLevels.needToAddParensAroundASTNodeLabel(clause)
+            addParens = addParens or PrecedenceLevels.needToAddParensAroundASTNodeLabel(clause)
         }
         if (addParens) {
             buf.append('(')

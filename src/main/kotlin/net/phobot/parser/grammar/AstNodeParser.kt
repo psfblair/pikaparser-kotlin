@@ -30,7 +30,7 @@ import net.phobot.parser.clause.terminal.Start
 import net.phobot.parser.utils.StringUtils
 import kotlin.streams.toList
 
-object MetaGrammarAstNodeParser {
+object AstNodeParser {
 
     private enum class SingleChildClauseType(val typeName: String, val clauseConstructor: (Clause) -> Clause) {
         ONE_OR_MORE        ("OneOrMore", ClauseFactory::oneOrMore),

@@ -36,7 +36,7 @@
 package net.phobot.parser.utils
 
 import net.phobot.parser.ast.ASTNode
-import net.phobot.parser.grammar.GrammarPrecedenceLevels
+import net.phobot.parser.grammar.PrecedenceLevels
 import net.phobot.parser.memotable.Match
 import kotlin.math.min
 
@@ -98,7 +98,7 @@ class TreeUtils {
             // Uncomment for double-spaced rows
             // buf.append(indentStr + "│\n");
 
-            val astNodeLabelNeedsParens = GrammarPrecedenceLevels.needToAddParensAroundASTNodeLabel(match.memoKey.clause)
+            val astNodeLabelNeedsParens = PrecedenceLevels.needToAddParensAroundASTNodeLabel(match.memoKey.clause)
             buf.append(indentStr)
             buf.append(if (isLastChild) "└─" else "├─")
             val ruleNames = match.memoKey.clause.ruleNames

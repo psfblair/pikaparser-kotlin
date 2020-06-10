@@ -91,7 +91,7 @@ class Grammar
             val rulesWithName = ent.value
             if (rulesWithName.size > 1) {
                 val ruleName = ent.key
-                GrammarUtils.handlePrecedence(
+                PrecedenceLevels.attachPreferenceToSelfReferentialRuleNames(
                     ruleName, rulesWithName, lowestPrecedenceClauses, ruleNameToLowestPrecedenceLevelRuleName
                 )
             }
