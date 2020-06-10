@@ -9,7 +9,8 @@
  * //
  * //     Pika parsing: reformulating packrat parsing as a dynamic programming algorithm solves the left recursion
  * //     and error recovery problems. Luke A. D. Hutchison, May 2020.
- * //     https://arxiv.org/abs/2005.06444* //
+ * //     https://arxiv.org/abs/2005.06444
+ * //
  * //
  * // This software is provided under the MIT license:
  * //
@@ -33,40 +34,25 @@
  *
  */
 
-package net.phobot.parser.clause.aux
+package net.phobot.parser.clause
 
-import net.phobot.parser.clause.Clause
-import net.phobot.parser.grammar.utils.needToAddParensAroundASTNodeLabel
-import net.phobot.parser.grammar.utils.needToAddParensAroundSubClause
+import net.phobot.parser.clause.aux.ASTNodeLabel
+import net.phobot.parser.clause.aux.RuleRef
+import net.phobot.parser.clause.nonterminal.*
+import net.phobot.parser.clause.terminal.Terminal
 
-/** A container for grouping a subclause together with its AST node label.  */
-class LabeledClause(var clause: Clause, var astNodeLabel: String?) {
-
-    /** Call [.toString], prepending any AST node label.  */
-    fun toStringWithASTNodeLabel(parentClause: Clause?): String {
-        var addParens = (parentClause != null && needToAddParensAroundSubClause(parentClause, clause))
-
-        if (astNodeLabel == null && !addParens) {
-            // Fast path
-            return clause.toString()
-        }
-        val buf = StringBuilder()
-        if (astNodeLabel != null) {
-            buf.append(astNodeLabel)
-            buf.append(':')
-            addParens = addParens or needToAddParensAroundASTNodeLabel(clause)
-        }
-        if (addParens) {
-            buf.append('(')
-        }
-        buf.append(clause.toString())
-        if (addParens) {
-            buf.append(')')
-        }
-        return buf.toString()
-    }
-
-    override fun toString(): String {
-        return toStringWithASTNodeLabel(parentClause = null)
-    }
-}
+// GrammarPrecedenceLevels levels (should correspond to levels in the grammar):
+val clauseTypeToPrecedence =
+        mapOf(
+           Terminal::class to      7,
+           // Treat RuleRef as having the same precedence as a terminal for string interning purposes
+           RuleRef::class to       7,
+           OneOrMore::class to     6,
+           // ZeroOrMore is not present in the final grammar, so it is skipped here
+           NotFollowedBy::class to 5,
+           FollowedBy::class to    5,
+           // Optional is not present in final grammar, so it is skipped here
+           ASTNodeLabel::class to  3,
+           Seq::class to           2,
+           First::class to         1
+        )

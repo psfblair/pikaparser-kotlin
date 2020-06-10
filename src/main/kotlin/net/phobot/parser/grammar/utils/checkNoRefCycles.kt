@@ -34,46 +34,24 @@
  *
  */
 
-package net.phobot.parser.grammar
+package net.phobot.parser.grammar.utils
 
-import net.phobot.parser.ast.ASTNode
-import net.phobot.parser.ast.L_ASSOC_AST
-import net.phobot.parser.ast.R_ASSOC_AST
 import net.phobot.parser.clause.Clause
+import net.phobot.parser.clause.aux.RuleRef
 
-object RuleParser {
+/**
+ * Check there are no cycles in the clauses of rules, before [RuleRef] instances are resolved to direct
+ * references.
+ */
+fun checkNoRefCycles(clause: Clause, selfRefRuleName: String, visited: MutableSet<Clause>) {
+    val wasAdded = visited.add(clause)
 
-    /** Construct a [Rule].  */
-    fun rule(ruleName: String, clause: Clause): Rule {
-        // Use -1 as precedence if rule group has only one precedence
-        return rule(ruleName, precedence = -1, associativity = null, clause = clause)
+    require(wasAdded)
+        { "Rules should not contain cycles when they are created: ${selfRefRuleName}" }
+
+    for (labeledSubClause in clause.labeledSubClauses) {
+        val subClause = labeledSubClause.clause
+        checkNoRefCycles(subClause, selfRefRuleName, visited)
     }
-
-    /** Construct a [Rule] with the given precedence and associativity.  */
-    fun rule(ruleName: String, precedence: Int, associativity: Rule.Associativity?, clause: Clause): Rule {
-        return Rule(ruleName, precedence, associativity, clause)
-    }
-
-    /** Parse a rule in the AST, returning a new [Rule].  */
-    fun parseRule(ruleNode: ASTNode): Rule {
-        val ruleName = ruleNode.firstChild.text
-        val hasPrecedence = ruleNode.children.size > 2
-        val associativity = when {
-            ruleNode.children.size < 4 -> null
-            ruleNode.thirdChild.label == L_ASSOC_AST -> Rule.Associativity.LEFT
-            ruleNode.thirdChild.label == R_ASSOC_AST -> Rule.Associativity.RIGHT
-            else -> null
-        }
-        val precedence = if (hasPrecedence) Integer.parseInt(ruleNode.secondChild.text) else -1
-
-        require(!hasPrecedence || precedence >= 0)
-        {
-            ("If there is precedence, it must be zero or positive (rule ${ruleName} " +
-                    "has precedence level ${precedence})")
-        }
-
-        val astNode = ruleNode.getChild(ruleNode.children.size - 1)
-        val clause = AstNodeParser.parseASTNode(astNode)
-        return rule(ruleName, precedence, associativity, clause)
-    }
+    visited.remove(clause)
 }

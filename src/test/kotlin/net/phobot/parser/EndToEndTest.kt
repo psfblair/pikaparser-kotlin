@@ -40,7 +40,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 // import io.kotest.assertions.
 import io.kotest.matchers.shouldBe
 import net.phobot.parser.TestUtils.loadResourceFile
-import net.phobot.parser.grammar.MetaGrammar
+import net.phobot.parser.ruleprocessing.MetaGrammar
 import net.phobot.parser.utils.ParserInfo
 
 class EndToEndTest : FunSpec({

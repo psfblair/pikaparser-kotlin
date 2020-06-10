@@ -39,6 +39,7 @@ import net.phobot.parser.clause.Clause
 import net.phobot.parser.clause.aux.RuleRef
 import net.phobot.parser.clause.terminal.Nothing
 import net.phobot.parser.clause.terminal.Terminal
+import net.phobot.parser.grammar.utils.*
 import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
@@ -80,7 +81,7 @@ class Grammar
             // Make sure there are no cycles in the grammar before RuleRef instances have been replaced
             // with direct references (checking once up front simplifies other recursive routines, so that
             // they don't have to check for infinite recursion)
-            GrammarUtils.checkNoRefCycles(rule.labeledClause.clause, ruleName, mutableSetOf())
+            checkNoRefCycles(rule.labeledClause.clause, ruleName, mutableSetOf())
         }
 
         allRules = ArrayList(rules)
@@ -91,7 +92,7 @@ class Grammar
             val rulesWithName = ent.value
             if (rulesWithName.size > 1) {
                 val ruleName = ent.key
-                PrecedenceLevels.attachPreferenceToSelfReferentialRuleNames(
+                attachPrecedenceToSelfReferentialRuleNames(
                     ruleName, rulesWithName, lowestPrecedenceClauses, ruleNameToLowestPrecedenceLevelRuleName
                 )
             }
@@ -120,18 +121,18 @@ class Grammar
         // Clause references, toString() doesn't get stuck in an infinite loop.
         val toStringToClause = HashMap<String, Clause>()
         for (rule in allRules) {
-            rule.labeledClause.clause = GrammarUtils.intern(rule.labeledClause.clause, toStringToClause)
+            rule.labeledClause.clause = internStrings(rule.labeledClause.clause, toStringToClause)
         }
 
         // Resolve each RuleRef into a direct reference to the referenced clause
         val clausesVisitedResolveRuleRefs = HashSet<Clause>()
         for (rule in allRules) {
-            GrammarUtils.resolveRuleRefs(rule.labeledClause, ruleNameWithPrecedenceToRule,
+            resolveRuleRefs(rule.labeledClause, ruleNameWithPrecedenceToRule,
                     ruleNameToLowestPrecedenceLevelRuleName, clausesVisitedResolveRuleRefs)
         }
 
         // Topologically sort clauses, bottom-up, placing the result in allClauses
-        allClauses = GrammarUtils.findClauseTopoSortOrder(allRules, lowestPrecedenceClauses)
+        allClauses = findClauseTopoSortOrder(allRules, lowestPrecedenceClauses)
 
         // Find clauses that always match zero or more characters, e.g. FirstMatch(X | Nothing).
         // Importantly, allClauses is in reverse topological order, i.e. traversal is bottom-up.

@@ -40,7 +40,7 @@ package net.phobot.parser
 import io.kotest.core.spec.style.FunSpec
 import net.phobot.parser.Benchmark.Benchmark.executeInTimedLoop
 import net.phobot.parser.TestUtils.loadResourceFile
-import net.phobot.parser.grammar.MetaGrammar
+import net.phobot.parser.ruleprocessing.MetaGrammar
 import java.util.*
 
 

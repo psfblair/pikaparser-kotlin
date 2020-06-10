@@ -9,7 +9,8 @@
  * //
  * //     Pika parsing: reformulating packrat parsing as a dynamic programming algorithm solves the left recursion
  * //     and error recovery problems. Luke A. D. Hutchison, May 2020.
- * //     https://arxiv.org/abs/2005.06444* //
+ * //     https://arxiv.org/abs/2005.06444
+ * //
  * //
  * // This software is provided under the MIT license:
  * //
@@ -33,7 +34,7 @@
  *
  */
 
-package net.phobot.parser.grammar
+package net.phobot.parser.ruleprocessing
 
 import net.phobot.parser.ast.ASTNode
 import net.phobot.parser.ast.RULE_AST
@@ -65,11 +66,14 @@ import net.phobot.parser.clause.ClauseFactory.cRange
 import net.phobot.parser.clause.ClauseFactory.str
 import net.phobot.parser.clause.aux.ASTNodeLabel
 import net.phobot.parser.clause.aux.RuleRef
+import net.phobot.parser.clause.clauseTypeToPrecedence
 import net.phobot.parser.clause.nonterminal.First
 import net.phobot.parser.clause.nonterminal.Seq
 import net.phobot.parser.clause.terminal.CharSet
 import net.phobot.parser.clause.terminal.Start
-import net.phobot.parser.grammar.RuleParser.rule
+import net.phobot.parser.grammar.Grammar
+import net.phobot.parser.grammar.Rule
+import net.phobot.parser.ruleprocessing.RuleFactory.rule
 import net.phobot.parser.utils.ParserInfo
 
 
@@ -174,15 +178,15 @@ object MetaGrammar {
 
                     rule(RULE_RULENAME, ASTNodeLabel(RULE_AST,
                             Seq(
-                                IDENTIFIER_REF(),
-                                WHITESPACE_REF(),
-                                optional(PRECEDENCE_REF()),
-                                ARROW,
-                                WHITESPACE_REF(),
-                                CLAUSE_REF(),
-                                WHITESPACE_REF(),
-                                SEMICOLON,
-                                WHITESPACE_REF()
+                                    IDENTIFIER_REF(),
+                                    WHITESPACE_REF(),
+                                    optional(PRECEDENCE_REF()),
+                                    ARROW,
+                                    WHITESPACE_REF(),
+                                    CLAUSE_REF(),
+                                    WHITESPACE_REF(),
+                                    SEMICOLON,
+                                    WHITESPACE_REF()
                             ))
                     ),
 
@@ -191,72 +195,72 @@ object MetaGrammar {
                     // Parens
                     rule(CLAUSE_RULENAME, precedence = 8, associativity = null,
                             clause = Seq(
-                                        OPEN_PAREN,
-                                        WHITESPACE_REF(),
-                                        CLAUSE_REF(),
-                                        WHITESPACE_REF(),
-                                        CLOSE_PAREN
-                                        )
+                                    OPEN_PAREN,
+                                    WHITESPACE_REF(),
+                                    CLAUSE_REF(),
+                                    WHITESPACE_REF(),
+                                    CLOSE_PAREN
+                            )
                     ),
 
                     // Terminals
                     rule(CLAUSE_RULENAME, precedence = 7, associativity = null,
                             clause = First(
-                                        IDENTIFIER_REF(),
-                                        QUOTED_STRING_REF(),
-                                        CHAR_SET_REF(),
-                                        NOTHING_REF(),
-                                        START_REF()
-                                        )
+                                    IDENTIFIER_REF(),
+                                    QUOTED_STRING_REF(),
+                                    CHAR_SET_REF(),
+                                    NOTHING_REF(),
+                                    START_REF()
+                            )
                     ),
 
                     // OneOrMore / ZeroOrMore
                     rule(CLAUSE_RULENAME, precedence = 6, associativity = null,
                             clause = First(
-                                        Seq(
+                                    Seq(
                                             ASTNodeLabel(ONE_OR_MORE_AST, CLAUSE_REF()),
                                             WHITESPACE_REF(),
                                             PLUS
-                                        ),
-                                        Seq(
+                                    ),
+                                    Seq(
                                             ASTNodeLabel(ZERO_OR_MORE_AST, CLAUSE_REF()),
                                             WHITESPACE_REF(),
                                             STAR
-                                        ))
+                                    ))
                     ),
 
                     // FollowedBy / NotFollowedBy
                     rule(CLAUSE_RULENAME, precedence = 5, associativity = null,
                             clause = First(
-                                        Seq(
+                                    Seq(
                                             AMPERSAND,
                                             ASTNodeLabel(FOLLOWED_BY_AST, CLAUSE_REF())
-                                        ),
-                                        Seq(
+                                    ),
+                                    Seq(
                                             BANG,
                                             ASTNodeLabel(NOT_FOLLOWED_BY_AST, CLAUSE_REF())
-                                        ))
+                                    ))
                     ),
 
                     // Optional
                     rule(CLAUSE_RULENAME, precedence = 4, associativity = null,
                             clause = Seq(
-                                        ASTNodeLabel(OPTIONAL_AST, CLAUSE_REF()),
-                                        WHITESPACE_REF(),
-                                        QUESTION_MARK
-                                        )
+                                    ASTNodeLabel(OPTIONAL_AST, CLAUSE_REF()),
+                                    WHITESPACE_REF(),
+                                    QUESTION_MARK
+                            )
                     ),
 
                     // ASTNodeLabel
                     rule(CLAUSE_RULENAME, precedence = 3, associativity = null,
                             clause = ASTNodeLabel(LABEL_AST,
                                     Seq(
-                                        ASTNodeLabel(LABEL_NAME_AST, IDENTIFIER_REF()),
-                                        WHITESPACE_REF(),
-                                        COLON,
-                                        WHITESPACE_REF(),
-                                        ASTNodeLabel(LABEL_CLAUSE_AST, CLAUSE_REF()),
-                                        WHITESPACE_REF()
+                                            ASTNodeLabel(LABEL_NAME_AST, IDENTIFIER_REF()),
+                                            WHITESPACE_REF(),
+                                            COLON,
+                                            WHITESPACE_REF(),
+                                            ASTNodeLabel(LABEL_CLAUSE_AST, CLAUSE_REF()),
+                                            WHITESPACE_REF()
                                     )
                             )
                     ),
@@ -264,64 +268,64 @@ object MetaGrammar {
                     // Seq
                     rule(CLAUSE_RULENAME, precedence = 2, associativity = null,
                             clause = ASTNodeLabel(SEQ_AST,
-                                        Seq(
+                                    Seq(
                                             CLAUSE_REF(),
                                             WHITESPACE_REF(),
                                             oneOrMore(
-                                                Seq(
-                                                    CLAUSE_REF(),
-                                                    WHITESPACE_REF()
-                                                ))
-                                        ))
+                                                    Seq(
+                                                            CLAUSE_REF(),
+                                                            WHITESPACE_REF()
+                                                    ))
+                                    ))
                     ),
 
                     // First
                     rule(CLAUSE_RULENAME, precedence = 1, associativity = null,
                             clause = ASTNodeLabel(FIRST_AST,
-                                        Seq(
+                                    Seq(
                                             CLAUSE_REF(),
                                             WHITESPACE_REF(),
                                             oneOrMore(
-                                                Seq(
-                                                    SLASH,
-                                                    WHITESPACE_REF(),
-                                                    CLAUSE_REF(),
-                                                    WHITESPACE_REF()
-                                                )
+                                                    Seq(
+                                                            SLASH,
+                                                            WHITESPACE_REF(),
+                                                            CLAUSE_REF(),
+                                                            WHITESPACE_REF()
+                                                    )
                                             )
-                                        ))
+                                    ))
                     ),
 
                     // Whitespace or comment
                     rule(WSC_RULENAME,
                             zeroOrMore(
-                                First(
-                                    WHITESPACE_CHARS,
-                                    COMMENT_REF()
-                                )
+                                    First(
+                                            WHITESPACE_CHARS,
+                                            COMMENT_REF()
+                                    )
                             )
                     ),
 
                     // Comment
                     rule(COMMENT_RULENAME,
                             Seq(
-                                HASH,
-                                zeroOrMore(NON_NEWLINE)
+                                    HASH,
+                                    zeroOrMore(NON_NEWLINE)
                             )
                     ),
 
                     // Identifier
                     rule(IDENTIFIER_RULENAME,
                             ASTNodeLabel(IDENT_AST,
-                                Seq(
-                                    NAME_CHAR_REF(),
-                                    zeroOrMore(
-                                        First(
+                                    Seq(
                                             NAME_CHAR_REF(),
-                                            DIGITS
-                                        )
-                                    )
-                                ))
+                                            zeroOrMore(
+                                                    First(
+                                                            NAME_CHAR_REF(),
+                                                            DIGITS
+                                                    )
+                                            )
+                                    ))
                     ),
 
                     // Number
@@ -333,130 +337,130 @@ object MetaGrammar {
                     // Precedence and optional associativity modifiers for rule name
                     rule(PRECEDENCE_RULENAME,
                             Seq(
-                                OPEN_BRACKET,
-                                WHITESPACE_REF(),
-                                ASTNodeLabel(PREC_AST, NUMBER_REF()),
-                                WHITESPACE_REF(),
-                                optional(
-                                    Seq(
-                                        COMMA,
-                                        WHITESPACE_REF(),
-                                        First(
-                                            ASTNodeLabel(R_ASSOC_AST, First(*LOWER_OR_UPPERCASE_R)),
-                                            ASTNodeLabel(L_ASSOC_AST, First(*LOWER_OR_UPPERCASE_L))
-                                        ),
-                                        WHITESPACE_REF()
-                                    )),
-                                CLOSE_BRACKET,
-                                WHITESPACE_REF()
+                                    OPEN_BRACKET,
+                                    WHITESPACE_REF(),
+                                    ASTNodeLabel(PREC_AST, NUMBER_REF()),
+                                    WHITESPACE_REF(),
+                                    optional(
+                                            Seq(
+                                                    COMMA,
+                                                    WHITESPACE_REF(),
+                                                    First(
+                                                            ASTNodeLabel(R_ASSOC_AST, First(*LOWER_OR_UPPERCASE_R)),
+                                                            ASTNodeLabel(L_ASSOC_AST, First(*LOWER_OR_UPPERCASE_L))
+                                                    ),
+                                                    WHITESPACE_REF()
+                                            )),
+                                    CLOSE_BRACKET,
+                                    WHITESPACE_REF()
                             )
                     ),
 
                     // Character set
                     rule(CHAR_SET_RULENAME,
                             First(
-                                Seq(
-                                    BACKSLASH,
-                                    ASTNodeLabel(SINGLE_QUOTED_CHAR_AST, SINGLE_QUOTED_CHAR_REF()),
-                                    BACKSLASH
-                                ),
-                                Seq(
-                                    OPEN_BRACKET,
-                                    ASTNodeLabel(CHAR_RANGE_AST,
-                                        Seq(
-                                            optional(CARET),
-                                            oneOrMore(
-                                                First(
-                                                    CHAR_RANGE_REF(),
-                                                    CHAR_RANGE_CHAR_REF()
-                                                )
-                                            )
-                                        )
+                                    Seq(
+                                            BACKSLASH,
+                                            ASTNodeLabel(SINGLE_QUOTED_CHAR_AST, SINGLE_QUOTED_CHAR_REF()),
+                                            BACKSLASH
                                     ),
-                                    CLOSE_BRACKET
-                                )
+                                    Seq(
+                                            OPEN_BRACKET,
+                                            ASTNodeLabel(CHAR_RANGE_AST,
+                                                    Seq(
+                                                            optional(CARET),
+                                                            oneOrMore(
+                                                                    First(
+                                                                            CHAR_RANGE_REF(),
+                                                                            CHAR_RANGE_CHAR_REF()
+                                                                    )
+                                                            )
+                                                    )
+                                            ),
+                                            CLOSE_BRACKET
+                                    )
                             )
                     ),
 
                     // Single quoted character
                     rule(SINGLE_QUOTED_CHAR_RULENAME,
                             First(
-                                ESCAPED_CTRL_CHAR_REF(),
-                                CHARS_EXCEPT_SINGLE_QUOTE // TODO: replace invert() with NotFollowedBy
+                                    ESCAPED_CTRL_CHAR_REF(),
+                                    CHARS_EXCEPT_SINGLE_QUOTE // TODO: replace invert() with NotFollowedBy
                             )
                     ),
 
                     // Char range
                     rule(CHAR_RANGE_RULENAME,
                             Seq(
-                                CHAR_RANGE_CHAR_REF(),
-                                HYPHEN,
-                                CHAR_RANGE_CHAR_REF()
+                                    CHAR_RANGE_CHAR_REF(),
+                                    HYPHEN,
+                                    CHAR_RANGE_CHAR_REF()
                             )
                     ),
 
                     // Char range character
                     rule(CHAR_RANGE_CHAR_RULENAME,
                             First(
-                                CHARS_EXCEPT_BACKSLASH_OR_SQUARE_BRACKET,
-                                ESCAPED_CTRL_CHAR_REF(),
-                                ESCAPED_BACKSLASH,
-                                ESCAPED_CLOSE_BRACKET,
-                                ESCAPED_CARET
+                                    CHARS_EXCEPT_BACKSLASH_OR_SQUARE_BRACKET,
+                                    ESCAPED_CTRL_CHAR_REF(),
+                                    ESCAPED_BACKSLASH,
+                                    ESCAPED_CLOSE_BRACKET,
+                                    ESCAPED_CARET
                             )
                     ),
 
                     // Quoted string
                     rule(QUOTED_STRING_RULENAME,
                             Seq(
-                                DOUBLE_QUOTE,
-                                ASTNodeLabel(QUOTED_STRING_AST, zeroOrMore(STR_QUOTED_CHAR_REF())),
-                                DOUBLE_QUOTE
+                                    DOUBLE_QUOTE,
+                                    ASTNodeLabel(QUOTED_STRING_AST, zeroOrMore(STR_QUOTED_CHAR_REF())),
+                                    DOUBLE_QUOTE
                             )
                     ),
 
                     // Character within quoted string
                     rule(STR_QUOTED_CHAR_RULENAME,
                             First(
-                                ESCAPED_CTRL_CHAR_REF(),
-                                CHARS_EXCEPT_DOUBLE_QUOTE_AND_BACKSLASH
+                                    ESCAPED_CTRL_CHAR_REF(),
+                                    CHARS_EXCEPT_DOUBLE_QUOTE_AND_BACKSLASH
                             )
                     ),
 
                     // Hex digit
                     rule(HEX_DIGIT_RULENAME,
                             CharSet(
-                                DIGITS,
-                                LOWERCASE_A_TO_F,
-                                UPPERCASE_A_TO_F
+                                    DIGITS,
+                                    LOWERCASE_A_TO_F,
+                                    UPPERCASE_A_TO_F
                             )
                     ),
 
                     // Escaped control character
                     rule(ESCAPED_CTRL_CHAR_RULENAME,
                             First(
-                                ESCAPED_TAB,
-                                ESCAPED_BELL,
-                                ESCAPED_NEWLINE,
-                                ESCAPED_RETURN,
-                                ESCAPED_FORM_FEED,
-                                ESCAPED_SINGLE_QUOTE,
-                                ESCAPED_DOUBLE_QUOTE,
-                                ESCAPED_BACKSLASH,
-                                Seq(
-                                    ESCAPED_LOWERCASE_U, HEX_DIGIT_REF(), HEX_DIGIT_REF(), HEX_DIGIT_REF(), HEX_DIGIT_REF()
-                                )
+                                    ESCAPED_TAB,
+                                    ESCAPED_BELL,
+                                    ESCAPED_NEWLINE,
+                                    ESCAPED_RETURN,
+                                    ESCAPED_FORM_FEED,
+                                    ESCAPED_SINGLE_QUOTE,
+                                    ESCAPED_DOUBLE_QUOTE,
+                                    ESCAPED_BACKSLASH,
+                                    Seq(
+                                            ESCAPED_LOWERCASE_U, HEX_DIGIT_REF(), HEX_DIGIT_REF(), HEX_DIGIT_REF(), HEX_DIGIT_REF()
+                                    )
                             )
                     ),
 
                     // Nothing (empty string match)
                     rule(NOTHING_RULENAME,
                             ASTNodeLabel(NOTHING_AST,
-                                Seq(
-                                    OPEN_PAREN,
-                                    WHITESPACE_REF(),
-                                    CLOSE_PAREN
-                                )
+                                    Seq(
+                                            OPEN_PAREN,
+                                            WHITESPACE_REF(),
+                                            CLOSE_PAREN
+                                    )
                             )
                     ),
 
@@ -476,9 +480,9 @@ object MetaGrammar {
         //            println("    " + clause.toStringWithRuleNames())
         //        }
 
-        val precedenceOfFirst = PrecedenceLevels.clauseTypeToPrecedence[First::class]
+        val precedenceOfFirst = clauseTypeToPrecedence[First::class]
         val syntaxErrors = memoTable.getSyntaxErrors(arrayOf(
-                GRAMMAR_RULENAME, RULE_RULENAME, "${CLAUSE_RULENAME}[${precedenceOfFirst}]")
+                GRAMMAR_RULENAME, RULE_RULENAME, "$CLAUSE_RULENAME[${precedenceOfFirst}]")
         )
 
         if (syntaxErrors.isNotEmpty()) {
@@ -513,7 +517,7 @@ object MetaGrammar {
 
             require(astNode.label == RULE_AST) { "Wrong node type" }
 
-            val rule = RuleParser.parseRule(astNode)
+            val rule = RuleFactory.parseRule(astNode)
             rules.add(rule)
         }
         return Grammar(rules)

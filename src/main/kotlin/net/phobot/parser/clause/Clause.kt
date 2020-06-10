@@ -38,8 +38,8 @@ import net.phobot.parser.clause.aux.ASTNodeLabel
 import net.phobot.parser.clause.aux.LabeledClause
 import net.phobot.parser.clause.nonterminal.Seq
 import net.phobot.parser.clause.terminal.Nothing
-import net.phobot.parser.grammar.PrecedenceLevels
 import net.phobot.parser.grammar.Rule
+import net.phobot.parser.grammar.utils.needToAddParensAroundASTNodeLabel
 import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
@@ -174,7 +174,7 @@ protected constructor(vararg subClauses: Clause) {
                         addedASTNodeLabels = true
                     }
                 }
-                val addParens = addedASTNodeLabels && PrecedenceLevels.needToAddParensAroundASTNodeLabel(this)
+                val addParens = addedASTNodeLabels && needToAddParensAroundASTNodeLabel(this)
                 if (addParens) {
                     buf.append('(')
                 }

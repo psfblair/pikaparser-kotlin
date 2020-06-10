@@ -9,7 +9,8 @@
  * //
  * //     Pika parsing: reformulating packrat parsing as a dynamic programming algorithm solves the left recursion
  * //     and error recovery problems. Luke A. D. Hutchison, May 2020.
- * //     https://arxiv.org/abs/2005.06444* //
+ * //     https://arxiv.org/abs/2005.06444
+ * //
  * //
  * // This software is provided under the MIT license:
  * //
@@ -33,40 +34,26 @@
  *
  */
 
-package net.phobot.parser.clause.aux
+package net.phobot.parser.grammar.utils
 
 import net.phobot.parser.clause.Clause
-import net.phobot.parser.grammar.utils.needToAddParensAroundASTNodeLabel
-import net.phobot.parser.grammar.utils.needToAddParensAroundSubClause
+import net.phobot.parser.clause.aux.RuleRef
+import net.phobot.parser.grammar.Rule
 
-/** A container for grouping a subclause together with its AST node label.  */
-class LabeledClause(var clause: Clause, var astNodeLabel: String?) {
-
-    /** Call [.toString], prepending any AST node label.  */
-    fun toStringWithASTNodeLabel(parentClause: Clause?): String {
-        var addParens = (parentClause != null && needToAddParensAroundSubClause(parentClause, clause))
-
-        if (astNodeLabel == null && !addParens) {
-            // Fast path
-            return clause.toString()
-        }
-        val buf = StringBuilder()
-        if (astNodeLabel != null) {
-            buf.append(astNodeLabel)
-            buf.append(':')
-            addParens = addParens or needToAddParensAroundASTNodeLabel(clause)
-        }
-        if (addParens) {
-            buf.append('(')
-        }
-        buf.append(clause.toString())
-        if (addParens) {
-            buf.append(')')
-        }
-        return buf.toString()
+/**
+ * Recursively call toString() on the clause tree for this [Rule], so that toString() values are cached
+ * before [RuleRef] objects are replaced with direct references, and so that shared subclauses are only
+ * matched once.
+ */
+fun internStrings(clause: Clause, toStringToClause: MutableMap<String, Clause>): Clause {
+    // Call toString() on (and intern) subclauses, bottom-up
+    for (i in clause.labeledSubClauses.indices) {
+        clause.labeledSubClauses[i].clause = internStrings(clause.labeledSubClauses[i].clause, toStringToClause)
     }
+    // Call toString after recursing to child nodes
+    val toStr = clause.toString()
 
-    override fun toString(): String {
-        return toStringWithASTNodeLabel(parentClause = null)
-    }
+    // Intern the clause based on the toString value if it isn't present (Kotlin getOrPut returns the value if added)
+    // and return whatever clause is interned
+    return toStringToClause.getOrPut(toStr, { clause })
 }

@@ -9,7 +9,8 @@
  * //
  * //     Pika parsing: reformulating packrat parsing as a dynamic programming algorithm solves the left recursion
  * //     and error recovery problems. Luke A. D. Hutchison, May 2020.
- * //     https://arxiv.org/abs/2005.06444* //
+ * //     https://arxiv.org/abs/2005.06444
+ * //
  * //
  * // This software is provided under the MIT license:
  * //
@@ -33,40 +34,48 @@
  *
  */
 
-package net.phobot.parser.clause.aux
+package net.phobot.parser.ruleprocessing
 
+import net.phobot.parser.ast.ASTNode
+import net.phobot.parser.ast.L_ASSOC_AST
+import net.phobot.parser.ast.R_ASSOC_AST
 import net.phobot.parser.clause.Clause
-import net.phobot.parser.grammar.utils.needToAddParensAroundASTNodeLabel
-import net.phobot.parser.grammar.utils.needToAddParensAroundSubClause
+import net.phobot.parser.grammar.parseASTNode
+import net.phobot.parser.grammar.Rule
 
-/** A container for grouping a subclause together with its AST node label.  */
-class LabeledClause(var clause: Clause, var astNodeLabel: String?) {
+object RuleFactory {
 
-    /** Call [.toString], prepending any AST node label.  */
-    fun toStringWithASTNodeLabel(parentClause: Clause?): String {
-        var addParens = (parentClause != null && needToAddParensAroundSubClause(parentClause, clause))
-
-        if (astNodeLabel == null && !addParens) {
-            // Fast path
-            return clause.toString()
-        }
-        val buf = StringBuilder()
-        if (astNodeLabel != null) {
-            buf.append(astNodeLabel)
-            buf.append(':')
-            addParens = addParens or needToAddParensAroundASTNodeLabel(clause)
-        }
-        if (addParens) {
-            buf.append('(')
-        }
-        buf.append(clause.toString())
-        if (addParens) {
-            buf.append(')')
-        }
-        return buf.toString()
+    /** Construct a [Rule].  */
+    fun rule(ruleName: String, clause: Clause): Rule {
+        // Use -1 as precedence if rule group has only one precedence
+        return rule(ruleName, precedence = -1, associativity = null, clause = clause)
     }
 
-    override fun toString(): String {
-        return toStringWithASTNodeLabel(parentClause = null)
+    /** Construct a [Rule] with the given precedence and associativity.  */
+    fun rule(ruleName: String, precedence: Int, associativity: Rule.Associativity?, clause: Clause): Rule {
+        return Rule(ruleName, precedence, associativity, clause)
+    }
+
+    /** Parse a rule in the AST, returning a new [Rule].  */
+    fun parseRule(ruleNode: ASTNode): Rule {
+        val ruleName = ruleNode.firstChild.text
+        val hasPrecedence = ruleNode.children.size > 2
+        val associativity = when {
+            ruleNode.children.size < 4 -> null
+            ruleNode.thirdChild.label == L_ASSOC_AST -> Rule.Associativity.LEFT
+            ruleNode.thirdChild.label == R_ASSOC_AST -> Rule.Associativity.RIGHT
+            else -> null
+        }
+        val precedence = if (hasPrecedence) Integer.parseInt(ruleNode.secondChild.text) else -1
+
+        require(!hasPrecedence || precedence >= 0)
+        {
+            ("If there is precedence, it must be zero or positive (rule ${ruleName} " +
+                    "has precedence level ${precedence})")
+        }
+
+        val astNode = ruleNode.getChild(ruleNode.children.size - 1)
+        val clause = parseASTNode(astNode)
+        return rule(ruleName, precedence, associativity, clause)
     }
 }
