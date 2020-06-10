@@ -38,7 +38,29 @@ package net.phobot.parser.ast
 import net.phobot.parser.clause.Clause
 import net.phobot.parser.memotable.Match
 import net.phobot.parser.utils.TreeUtils
-import java.util.*
+
+// AST node names:
+
+const val RULE_AST = "RuleAST"
+const val PREC_AST = "PrecAST"
+const val R_ASSOC_AST = "RAssocAST"
+const val L_ASSOC_AST = "LAssocAST"
+const val IDENT_AST = "IdentAST"
+const val LABEL_AST = "LabelAST"
+const val LABEL_NAME_AST = "LabelNameAST"
+const val LABEL_CLAUSE_AST = "LabelClauseAST"
+const val SEQ_AST = "SeqAST"
+const val FIRST_AST = "FirstAST"
+const val FOLLOWED_BY_AST = "FollowedByAST"
+const val NOT_FOLLOWED_BY_AST = "NotFollowedByAST"
+const val ONE_OR_MORE_AST = "OneOrMoreAST"
+const val ZERO_OR_MORE_AST = "ZeroOrMoreAST"
+const val OPTIONAL_AST = "OptionalAST"
+const val SINGLE_QUOTED_CHAR_AST = "SingleQuotedCharAST"
+const val CHAR_RANGE_AST = "CharRangeAST"
+const val QUOTED_STRING_AST = "QuotedStringAST"
+const val START_AST = "StartAST"
+const val NOTHING_AST = "NothingAST";
 
 /** A node in the Abstract Syntax Tree (AST).  */
 class ASTNode private constructor(val label: String, val nodeType: Clause, val startPos: Int, val len: Int, val input: String) {

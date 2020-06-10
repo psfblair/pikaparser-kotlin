@@ -247,7 +247,8 @@ object GrammarUtils {
         // Check there are no duplicate precedence levels
         val precedenceToRule = TreeMap<Int, Rule>()
         for (rule in rules) {
-            require(precedenceToRule.put(rule.precedence, rule) == null)
+            val maybePreviousValue = precedenceToRule.put(rule.precedence, rule)
+            require(maybePreviousValue == null)
                 { ("Multiple rules with name ${ruleNameWithoutPrecedence}"
                     + if (rule.precedence == -1) "" else " and precedence ${rule.precedence}")
                 }

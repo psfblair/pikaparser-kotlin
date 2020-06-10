@@ -36,26 +36,41 @@
 package net.phobot.parser.grammar
 
 import net.phobot.parser.ast.ASTNode
+import net.phobot.parser.ast.RULE_AST
+import net.phobot.parser.ast.PREC_AST
+import net.phobot.parser.ast.R_ASSOC_AST
+import net.phobot.parser.ast.L_ASSOC_AST
+import net.phobot.parser.ast.IDENT_AST
+import net.phobot.parser.ast.LABEL_AST
+import net.phobot.parser.ast.LABEL_NAME_AST
+import net.phobot.parser.ast.LABEL_CLAUSE_AST
+import net.phobot.parser.ast.SEQ_AST
+import net.phobot.parser.ast.FIRST_AST
+import net.phobot.parser.ast.FOLLOWED_BY_AST
+import net.phobot.parser.ast.NOT_FOLLOWED_BY_AST
+import net.phobot.parser.ast.ONE_OR_MORE_AST
+import net.phobot.parser.ast.ZERO_OR_MORE_AST
+import net.phobot.parser.ast.OPTIONAL_AST
+import net.phobot.parser.ast.SINGLE_QUOTED_CHAR_AST
+import net.phobot.parser.ast.CHAR_RANGE_AST
+import net.phobot.parser.ast.QUOTED_STRING_AST
+import net.phobot.parser.ast.START_AST
+import net.phobot.parser.ast.NOTHING_AST
+
 import net.phobot.parser.clause.Clause
-import net.phobot.parser.clause.ClauseFactory
-import net.phobot.parser.clause.ClauseFactory.ast
-import net.phobot.parser.clause.ClauseFactory.c
-import net.phobot.parser.clause.ClauseFactory.cRange
-import net.phobot.parser.clause.ClauseFactory.first
-import net.phobot.parser.clause.ClauseFactory.nothing
 import net.phobot.parser.clause.ClauseFactory.oneOrMore
 import net.phobot.parser.clause.ClauseFactory.optional
-import net.phobot.parser.clause.ClauseFactory.rule
-import net.phobot.parser.clause.ClauseFactory.ruleRef
-import net.phobot.parser.clause.ClauseFactory.seq
-import net.phobot.parser.clause.ClauseFactory.start
-import net.phobot.parser.clause.ClauseFactory.str
 import net.phobot.parser.clause.ClauseFactory.zeroOrMore
+import net.phobot.parser.clause.ClauseFactory.cRange
+import net.phobot.parser.clause.ClauseFactory.str
+import net.phobot.parser.clause.aux.ASTNodeLabel
+import net.phobot.parser.clause.aux.RuleRef
 import net.phobot.parser.clause.nonterminal.First
-import net.phobot.parser.grammar.Rule.Associativity
+import net.phobot.parser.clause.nonterminal.Seq
+import net.phobot.parser.clause.terminal.CharSet
+import net.phobot.parser.clause.terminal.Start
+import net.phobot.parser.grammar.RuleParser.rule
 import net.phobot.parser.utils.ParserInfo
-import net.phobot.parser.utils.StringUtils
-import kotlin.streams.toList
 
 
 /**
@@ -65,371 +80,389 @@ object MetaGrammar {
 
     // Rule names:
 
-    private const val GRAMMAR = "GRAMMAR"
-    private const val WSC = "WSC"
-    private const val COMMENT = "COMMENT"
-    private const val RULE = "RULE"
-    private const val CLAUSE = "CLAUSE"
-    private const val IDENT = "IDENT"
-    private const val PREC = "PREC"
-    private const val NUM = "NUM"
-    private const val NAME_CHAR = "NAME_CHAR"
-    private const val CHAR_SET = "CHARSET"
-    private const val HEX = "Hex"
-    private const val CHAR_RANGE = "CHAR_RANGE"
-    private const val CHAR_RANGE_CHAR = "CHAR_RANGE_CHAR"
-    private const val QUOTED_STRING = "QUOTED_STR"
-    private const val ESCAPED_CTRL_CHAR = "ESCAPED_CTRL_CHAR"
-    private const val SINGLE_QUOTED_CHAR = "SINGLE_QUOTED_CHAR"
-    private const val STR_QUOTED_CHAR = "STR_QUOTED_CHAR"
-    private const val NOTHING = "NOTHING"
-    private const val START = "START"
-
-    // AST node names:
-
-    private const val RULE_AST = "RuleAST"
-    private const val PREC_AST = "PrecAST"
-    private const val R_ASSOC_AST = "RAssocAST"
-    private const val L_ASSOC_AST = "LAssocAST"
-    private const val IDENT_AST = "IdentAST"
-    private const val LABEL_AST = "LabelAST"
-    private const val LABEL_NAME_AST = "LabelNameAST"
-    private const val LABEL_CLAUSE_AST = "LabelClauseAST"
-    private const val SEQ_AST = "SeqAST"
-    private const val FIRST_AST = "FirstAST"
-    private const val FOLLOWED_BY_AST = "FollowedByAST"
-    private const val NOT_FOLLOWED_BY_AST = "NotFollowedByAST"
-    private const val ONE_OR_MORE_AST = "OneOrMoreAST"
-    private const val ZERO_OR_MORE_AST = "ZeroOrMoreAST"
-    private const val OPTIONAL_AST = "OptionalAST"
-    private const val SINGLE_QUOTED_CHAR_AST = "SingleQuotedCharAST"
-    private const val CHAR_RANGE_AST = "CharRangeAST"
-    private const val QUOTED_STRING_AST = "QuotedStringAST"
-    private const val START_AST = "StartAST"
-    private const val NOTHING_AST = "NothingAST"
-
+    private const val GRAMMAR_RULENAME = "GRAMMAR"
+    private const val WSC_RULENAME = "WSC"
+    private const val COMMENT_RULENAME = "COMMENT"
+    private const val START_RULENAME = "START"
+    private const val RULE_RULENAME = "RULE"
+    private const val CLAUSE_RULENAME = "CLAUSE"
+    private const val IDENTIFIER_RULENAME = "IDENT"
+    private const val PRECEDENCE_RULENAME = "PREC"
+    private const val NUMBER_RULENAME = "NUM"
+    private const val HEX_DIGIT_RULENAME = "HEX"
+    private const val NAME_CHAR_RULENAME = "NAME_CHAR"
+    private const val CHAR_SET_RULENAME = "CHARSET"
+    private const val CHAR_RANGE_RULENAME = "CHAR_RANGE"
+    private const val CHAR_RANGE_CHAR_RULENAME = "CHAR_RANGE_CHAR"
+    private const val QUOTED_STRING_RULENAME = "QUOTED_STR"
+    private const val SINGLE_QUOTED_CHAR_RULENAME = "SINGLE_QUOTED_CHAR"
+    private const val STR_QUOTED_CHAR_RULENAME = "STR_QUOTED_CHAR"
+    private const val ESCAPED_CTRL_CHAR_RULENAME = "ESCAPED_CTRL_CHAR"
+    private const val NOTHING_RULENAME = "NOTHING"
 
     // Metagrammar:
 
+    // These are all functions because we can't hold one static instance to a single rule reference 
+    // (because e.g., of how rules are renamed for precedence). So we use constructor functions.
+    private val START                   = { Start() }
+    private val START_REF               = { RuleRef(START_RULENAME)  }
+    private val WHITESPACE_REF          = { RuleRef(WSC_RULENAME) }
+    private val RULE_REFS               = { oneOrMore(RuleRef(RULE_RULENAME)) }
+    private val IDENTIFIER_REF          = { RuleRef(IDENTIFIER_RULENAME) }
+    private val PRECEDENCE_REF          = { RuleRef(PRECEDENCE_RULENAME) }
+    private val CLAUSE_REF              = { RuleRef(CLAUSE_RULENAME) }
+    private val CHAR_SET_REF            = { RuleRef(CHAR_SET_RULENAME) }
+    private val SINGLE_QUOTED_CHAR_REF  = { RuleRef(SINGLE_QUOTED_CHAR_RULENAME) }
+    private val QUOTED_STRING_REF       = { RuleRef(QUOTED_STRING_RULENAME) }
+    private val NAME_CHAR_REF           = { RuleRef(NAME_CHAR_RULENAME) }
+    private val HEX_DIGIT_REF           = { RuleRef(HEX_DIGIT_RULENAME) }
+    private val NUMBER_REF              = { RuleRef(NUMBER_RULENAME) }
+    private val COMMENT_REF             = { RuleRef(COMMENT_RULENAME) }
+    private val CHAR_RANGE_REF          = { RuleRef(CHAR_RANGE_RULENAME) }
+    private val CHAR_RANGE_CHAR_REF     = { RuleRef(CHAR_RANGE_CHAR_RULENAME) }
+    private val ESCAPED_CTRL_CHAR_REF   = { RuleRef(ESCAPED_CTRL_CHAR_RULENAME) }
+    private val STR_QUOTED_CHAR_REF     = { RuleRef(STR_QUOTED_CHAR_RULENAME) }
+    private val NOTHING_REF             = { RuleRef(NOTHING_RULENAME) }
+
+    private val SEMICOLON = CharSet(';')
+    private val COMMA = CharSet(',')
+    private val OPEN_PAREN = CharSet('(')
+    private val CLOSE_PAREN = CharSet(')')
+    private val OPEN_BRACKET = CharSet('[')
+    private val CLOSE_BRACKET = CharSet(']')
+    private val DOUBLE_QUOTE = CharSet('"')
+    private val ARROW = str("<-")
+    private val PLUS = CharSet('+')
+    private val STAR = CharSet('*')
+    private val AMPERSAND = CharSet('&')
+    private val BANG = CharSet('!')
+    private val QUESTION_MARK = CharSet('?')
+    private val COLON = CharSet(':')
+    private val SLASH = CharSet('/')
+    private val BACKSLASH = CharSet('\'')
+    private val CARET = CharSet('^')
+    private val HASH = CharSet('#')
+    private val HYPHEN = CharSet('-')
+    private val NEWLINE = CharSet('\n')
+    private val NON_NEWLINE = NEWLINE.invert()
+    private val WHITESPACE_CHARS = CharSet(charArrayOf(' ', '\n', '\r', '\t'))
+    private val DIGITS = cRange('0', '9')
+    private val NAME_CHARS = CharSet(cRange('a', 'z'), cRange('A', 'Z'), CharSet('_', '-'))
+    private val LOWER_OR_UPPERCASE_R: Array<Clause> = arrayOf(CharSet('r'), CharSet('R'))
+    private val LOWER_OR_UPPERCASE_L: Array<Clause> = arrayOf(CharSet('l'), CharSet('L'))
+    private val LOWERCASE_A_TO_F = cRange('a', 'f')
+    private val UPPERCASE_A_TO_F = cRange('A', 'F')
+
+    private val ESCAPED_TAB = str("\\t")
+    private val ESCAPED_BELL = str("\\b")
+    private val ESCAPED_NEWLINE = str("\\n")
+    private val ESCAPED_RETURN = str("\\r")
+    private val ESCAPED_FORM_FEED = str("\\f")
+    private val ESCAPED_LOWERCASE_U = str("\\u")
+    private val ESCAPED_SINGLE_QUOTE = str("\\'")
+    private val ESCAPED_DOUBLE_QUOTE = str("\\\"")
+    private val ESCAPED_BACKSLASH = str("\\\\")
+    private val ESCAPED_CLOSE_BRACKET = str("\\]")
+    private val ESCAPED_CARET = str("\\^")
+    private val CHARS_EXCEPT_SINGLE_QUOTE = CharSet('\'').invert()
+    private val CHARS_EXCEPT_DOUBLE_QUOTE_AND_BACKSLASH = CharSet('"', '\\').invert()
+    private val CHARS_EXCEPT_BACKSLASH_OR_SQUARE_BRACKET = CharSet('\\', ']').invert()
+
     var grammar = Grammar(
             listOf(
-                rule(GRAMMAR,
-                        seq(start(), ruleRef(WSC), oneOrMore(ruleRef(RULE)))
-                ),
+                    rule(GRAMMAR_RULENAME, Seq(START(), WHITESPACE_REF(), RULE_REFS())),
 
-                rule(RULE,
-                        ast(RULE_AST,
-                                seq(ruleRef(IDENT),
-                                        ruleRef(WSC),
-                                        optional(ruleRef(PREC)),
-                                        str("<-"),
-                                        ruleRef(WSC),
-                                        ruleRef(CLAUSE),
-                                        ruleRef(WSC),
-                                        c(';'),
-                                        ruleRef(WSC)))
-                ),
+                    rule(RULE_RULENAME, ASTNodeLabel(RULE_AST,
+                            Seq(
+                                IDENTIFIER_REF(),
+                                WHITESPACE_REF(),
+                                optional(PRECEDENCE_REF()),
+                                ARROW,
+                                WHITESPACE_REF(),
+                                CLAUSE_REF(),
+                                WHITESPACE_REF(),
+                                SEMICOLON,
+                                WHITESPACE_REF()
+                            ))
+                    ),
 
-                // Define precedence order for clause sequences
+                    // Define precedence order for clause Sequences
 
-                // Parens
-                rule(CLAUSE, precedence = 8, associativity = null,
-                        clause = seq(c('('), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC), c(')'))
-                ),
+                    // Parens
+                    rule(CLAUSE_RULENAME, precedence = 8, associativity = null,
+                            clause = Seq(
+                                        OPEN_PAREN,
+                                        WHITESPACE_REF(),
+                                        CLAUSE_REF(),
+                                        WHITESPACE_REF(),
+                                        CLOSE_PAREN
+                                        )
+                    ),
 
-                // Terminals
-                rule(CLAUSE, precedence = 7, associativity = null,
-                        clause = first(
-                                    ruleRef(IDENT),
-                                    ruleRef(QUOTED_STRING),
-                                    ruleRef(CHAR_SET),
-                                    ruleRef(NOTHING),
-                                    ruleRef(START))
-                ),
+                    // Terminals
+                    rule(CLAUSE_RULENAME, precedence = 7, associativity = null,
+                            clause = First(
+                                        IDENTIFIER_REF(),
+                                        QUOTED_STRING_REF(),
+                                        CHAR_SET_REF(),
+                                        NOTHING_REF(),
+                                        START_REF()
+                                        )
+                    ),
 
-                // OneOrMore / ZeroOrMore
-                rule(CLAUSE, precedence = 6, associativity = null,
-                        clause = first(
-                                    seq(ast(ONE_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('+')),
-                                    seq(ast(ZERO_OR_MORE_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('*')))
-                ),
+                    // OneOrMore / ZeroOrMore
+                    rule(CLAUSE_RULENAME, precedence = 6, associativity = null,
+                            clause = First(
+                                        Seq(
+                                            ASTNodeLabel(ONE_OR_MORE_AST, CLAUSE_REF()),
+                                            WHITESPACE_REF(),
+                                            PLUS
+                                        ),
+                                        Seq(
+                                            ASTNodeLabel(ZERO_OR_MORE_AST, CLAUSE_REF()),
+                                            WHITESPACE_REF(),
+                                            STAR
+                                        ))
+                    ),
 
-                // FollowedBy / NotFollowedBy
-                rule(CLAUSE, precedence = 5, associativity = null,
-                        clause = first(
-                                    seq(c('&'), ast(FOLLOWED_BY_AST, ruleRef(CLAUSE))),
-                                    seq(c('!'), ast(NOT_FOLLOWED_BY_AST, ruleRef(CLAUSE))))
-                ),
+                    // FollowedBy / NotFollowedBy
+                    rule(CLAUSE_RULENAME, precedence = 5, associativity = null,
+                            clause = First(
+                                        Seq(
+                                            AMPERSAND,
+                                            ASTNodeLabel(FOLLOWED_BY_AST, CLAUSE_REF())
+                                        ),
+                                        Seq(
+                                            BANG,
+                                            ASTNodeLabel(NOT_FOLLOWED_BY_AST, CLAUSE_REF())
+                                        ))
+                    ),
 
-                // Optional
-                rule(CLAUSE, precedence = 4, associativity = null,
-                        clause = seq(ast(OPTIONAL_AST, ruleRef(CLAUSE)), ruleRef(WSC), c('?'))
-                ),
+                    // Optional
+                    rule(CLAUSE_RULENAME, precedence = 4, associativity = null,
+                            clause = Seq(
+                                        ASTNodeLabel(OPTIONAL_AST, CLAUSE_REF()),
+                                        WHITESPACE_REF(),
+                                        QUESTION_MARK
+                                        )
+                    ),
 
-                // ASTNodeLabel
-                rule(CLAUSE, precedence = 3, associativity = null,
-                        clause = ast(LABEL_AST,
-                                        seq(ast(LABEL_NAME_AST,
-                                                ruleRef(IDENT)),
-                                                ruleRef(WSC),
-                                                c(':'),
-                                                ruleRef(WSC),
-                                                ast(LABEL_CLAUSE_AST, ruleRef(CLAUSE)),
-                                                ruleRef(WSC)))
-                ),
+                    // ASTNodeLabel
+                    rule(CLAUSE_RULENAME, precedence = 3, associativity = null,
+                            clause = ASTNodeLabel(LABEL_AST,
+                                    Seq(
+                                        ASTNodeLabel(LABEL_NAME_AST, IDENTIFIER_REF()),
+                                        WHITESPACE_REF(),
+                                        COLON,
+                                        WHITESPACE_REF(),
+                                        ASTNodeLabel(LABEL_CLAUSE_AST, CLAUSE_REF()),
+                                        WHITESPACE_REF()
+                                    )
+                            )
+                    ),
 
-                // Seq
-                rule(CLAUSE, precedence = 2, associativity = null,
-                        clause = ast(SEQ_AST,
-                                        seq(ruleRef(CLAUSE),
-                                            ruleRef(WSC),
-                                            oneOrMore(seq(ruleRef(CLAUSE), ruleRef(WSC)))))
-                ),
+                    // Seq
+                    rule(CLAUSE_RULENAME, precedence = 2, associativity = null,
+                            clause = ASTNodeLabel(SEQ_AST,
+                                        Seq(
+                                            CLAUSE_REF(),
+                                            WHITESPACE_REF(),
+                                            oneOrMore(
+                                                Seq(
+                                                    CLAUSE_REF(),
+                                                    WHITESPACE_REF()
+                                                ))
+                                        ))
+                    ),
 
-                // First
-                rule(CLAUSE, precedence = 1, associativity = null,
-                        clause = ast(FIRST_AST,
-                                        seq(ruleRef(CLAUSE),
-                                            ruleRef(WSC),
-                                            oneOrMore(seq(c('/'), ruleRef(WSC), ruleRef(CLAUSE), ruleRef(WSC)))))
-                ),
+                    // First
+                    rule(CLAUSE_RULENAME, precedence = 1, associativity = null,
+                            clause = ASTNodeLabel(FIRST_AST,
+                                        Seq(
+                                            CLAUSE_REF(),
+                                            WHITESPACE_REF(),
+                                            oneOrMore(
+                                                Seq(
+                                                    SLASH,
+                                                    WHITESPACE_REF(),
+                                                    CLAUSE_REF(),
+                                                    WHITESPACE_REF()
+                                                )
+                                            )
+                                        ))
+                    ),
 
-                // Whitespace or comment
-                rule(WSC,
-                        zeroOrMore(
-                                first(
-                                        c(' ', '\n', '\r', '\t'),
-                                        ruleRef(COMMENT)
+                    // Whitespace or comment
+                    rule(WSC_RULENAME,
+                            zeroOrMore(
+                                First(
+                                    WHITESPACE_CHARS,
+                                    COMMENT_REF()
                                 )
-                        )
-                ),
+                            )
+                    ),
 
-                // Comment
-                rule(COMMENT,
-                        seq(
-                                c('#'),
-                                zeroOrMore(
-                                        c('\n').invert()
-                                )
-                        )
-                ),
+                    // Comment
+                    rule(COMMENT_RULENAME,
+                            Seq(
+                                HASH,
+                                zeroOrMore(NON_NEWLINE)
+                            )
+                    ),
 
-                // Identifier
-                rule(IDENT,
-                        ast(IDENT_AST,
-                                seq(ruleRef(NAME_CHAR), zeroOrMore(first(ruleRef(NAME_CHAR), cRange('0', '9')))))
-                ),
+                    // Identifier
+                    rule(IDENTIFIER_RULENAME,
+                            ASTNodeLabel(IDENT_AST,
+                                Seq(
+                                    NAME_CHAR_REF(),
+                                    zeroOrMore(
+                                        First(
+                                            NAME_CHAR_REF(),
+                                            DIGITS
+                                        )
+                                    )
+                                ))
+                    ),
 
-                // Number
-                rule(NUM,
-                        oneOrMore(cRange('0', '9'))
-                ),
+                    // Number
+                    rule(NUMBER_RULENAME, oneOrMore(DIGITS)),
 
-                // Name character
-                rule(NAME_CHAR,
-                        c(cRange('a', 'z'), cRange('A', 'Z'), c('_', '-'))
-                ),
+                    // Name character
+                    rule(NAME_CHAR_RULENAME, NAME_CHARS),
 
-                // Precedence and optional associativity modifiers for rule name
-                rule(PREC,
-                        seq(c('['),
-                            ruleRef(WSC),
-                            ast(PREC_AST, ruleRef(NUM)),
-                            ruleRef(WSC),
-                            optional(seq(c(','),
-                                         ruleRef(WSC),
-                                         first(ast(R_ASSOC_AST, first(c('r'), c('R'))),
-                                               ast(L_ASSOC_AST, first(c('l'), c('L')))),
-                                         ruleRef(WSC))),
-                            c(']'), ruleRef(WSC))
-                ),
+                    // Precedence and optional associativity modifiers for rule name
+                    rule(PRECEDENCE_RULENAME,
+                            Seq(
+                                OPEN_BRACKET,
+                                WHITESPACE_REF(),
+                                ASTNodeLabel(PREC_AST, NUMBER_REF()),
+                                WHITESPACE_REF(),
+                                optional(
+                                    Seq(
+                                        COMMA,
+                                        WHITESPACE_REF(),
+                                        First(
+                                            ASTNodeLabel(R_ASSOC_AST, First(*LOWER_OR_UPPERCASE_R)),
+                                            ASTNodeLabel(L_ASSOC_AST, First(*LOWER_OR_UPPERCASE_L))
+                                        ),
+                                        WHITESPACE_REF()
+                                    )),
+                                CLOSE_BRACKET,
+                                WHITESPACE_REF()
+                            )
+                    ),
 
-                // Character set
-                rule(CHAR_SET,
-                        first(
-                            seq(c('\''),
-                                ast(SINGLE_QUOTED_CHAR_AST, ruleRef(SINGLE_QUOTED_CHAR)),
-                                c('\'')
-                            ),
-                            seq(c('['),
-                                ast(CHAR_RANGE_AST, seq(optional(c('^')),
-                                                        oneOrMore(first(
-                                                                    ruleRef(CHAR_RANGE),
-                                                                    ruleRef(CHAR_RANGE_CHAR))))
+                    // Character set
+                    rule(CHAR_SET_RULENAME,
+                            First(
+                                Seq(
+                                    BACKSLASH,
+                                    ASTNodeLabel(SINGLE_QUOTED_CHAR_AST, SINGLE_QUOTED_CHAR_REF()),
+                                    BACKSLASH
                                 ),
-                                c(']')))
-                ),
+                                Seq(
+                                    OPEN_BRACKET,
+                                    ASTNodeLabel(CHAR_RANGE_AST,
+                                        Seq(
+                                            optional(CARET),
+                                            oneOrMore(
+                                                First(
+                                                    CHAR_RANGE_REF(),
+                                                    CHAR_RANGE_CHAR_REF()
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    CLOSE_BRACKET
+                                )
+                            )
+                    ),
 
-                // Single quoted character
-                rule(SINGLE_QUOTED_CHAR,
-                        first(
-                            ruleRef(ESCAPED_CTRL_CHAR),
-                            c('\'', '"').invert()) // TODO: replace invert() with NotFollowedBy
-                ),
+                    // Single quoted character
+                    rule(SINGLE_QUOTED_CHAR_RULENAME,
+                            First(
+                                ESCAPED_CTRL_CHAR_REF(),
+                                CHARS_EXCEPT_SINGLE_QUOTE // TODO: replace invert() with NotFollowedBy
+                            )
+                    ),
 
-                // Char range
-                rule(CHAR_RANGE,
-                        seq(ruleRef(CHAR_RANGE_CHAR),
-                            c('-'),
-                            ruleRef(CHAR_RANGE_CHAR))
-                ),
+                    // Char range
+                    rule(CHAR_RANGE_RULENAME,
+                            Seq(
+                                CHAR_RANGE_CHAR_REF(),
+                                HYPHEN,
+                                CHAR_RANGE_CHAR_REF()
+                            )
+                    ),
 
-                // Char range character
-                rule(CHAR_RANGE_CHAR,
-                        first(
-                            c('\\', ']').invert(),
-                            ruleRef(ESCAPED_CTRL_CHAR),
-                            str("\\\\"),
-                            str("\\]"),
-                            str("\\^"))
-                ),
+                    // Char range character
+                    rule(CHAR_RANGE_CHAR_RULENAME,
+                            First(
+                                CHARS_EXCEPT_BACKSLASH_OR_SQUARE_BRACKET,
+                                ESCAPED_CTRL_CHAR_REF(),
+                                ESCAPED_BACKSLASH,
+                                ESCAPED_CLOSE_BRACKET,
+                                ESCAPED_CARET
+                            )
+                    ),
 
-                // Quoted string
-                rule(QUOTED_STRING,
-                        seq(c('"'),
-                            ast(QUOTED_STRING_AST,
-                            zeroOrMore(ruleRef(STR_QUOTED_CHAR))),
-                            c('"'))
-                ),
+                    // Quoted string
+                    rule(QUOTED_STRING_RULENAME,
+                            Seq(
+                                DOUBLE_QUOTE,
+                                ASTNodeLabel(QUOTED_STRING_AST, zeroOrMore(STR_QUOTED_CHAR_REF())),
+                                DOUBLE_QUOTE
+                            )
+                    ),
 
-                // Character within quoted string
-                rule(STR_QUOTED_CHAR,
-                        first(
-                            ruleRef(ESCAPED_CTRL_CHAR),
-                            c('"', '\\').invert()
-                        )
-                ),
+                    // Character within quoted string
+                    rule(STR_QUOTED_CHAR_RULENAME,
+                            First(
+                                ESCAPED_CTRL_CHAR_REF(),
+                                CHARS_EXCEPT_DOUBLE_QUOTE_AND_BACKSLASH
+                            )
+                    ),
 
-                // Hex digit
-                rule(HEX, c(cRange('0', '9'),
-                            cRange('a', 'f'),
-                            cRange('A', 'F'))
-                ),
+                    // Hex digit
+                    rule(HEX_DIGIT_RULENAME,
+                            CharSet(
+                                DIGITS,
+                                LOWERCASE_A_TO_F,
+                                UPPERCASE_A_TO_F
+                            )
+                    ),
 
-                // Escaped control character
-                rule(ESCAPED_CTRL_CHAR,
-                        first(
-                                str("\\t"),
-                                str("\\b"),
-                                str("\\n"),
-                                str("\\r"),
-                                str("\\f"),
-                                str("\\'"),
-                                str("\\\""),
-                                str("\\\\"),
-                                seq(str("\\u"), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX), ruleRef(HEX)))
-                ),
+                    // Escaped control character
+                    rule(ESCAPED_CTRL_CHAR_RULENAME,
+                            First(
+                                ESCAPED_TAB,
+                                ESCAPED_BELL,
+                                ESCAPED_NEWLINE,
+                                ESCAPED_RETURN,
+                                ESCAPED_FORM_FEED,
+                                ESCAPED_SINGLE_QUOTE,
+                                ESCAPED_DOUBLE_QUOTE,
+                                ESCAPED_BACKSLASH,
+                                Seq(
+                                    ESCAPED_LOWERCASE_U, HEX_DIGIT_REF(), HEX_DIGIT_REF(), HEX_DIGIT_REF(), HEX_DIGIT_REF()
+                                )
+                            )
+                    ),
 
-                // Nothing (empty string match)
-                rule(NOTHING,
-                        ast(NOTHING_AST, seq(
-                                            c('('),
-                                            ruleRef(WSC),
-                                            c(')')))
-                ),
+                    // Nothing (empty string match)
+                    rule(NOTHING_RULENAME,
+                            ASTNodeLabel(NOTHING_AST,
+                                Seq(
+                                    OPEN_PAREN,
+                                    WHITESPACE_REF(),
+                                    CLOSE_PAREN
+                                )
+                            )
+                    ),
 
-                // Match start position
-                rule(START, ast(START_AST, c('^')))
+                    // Match start position
+                    rule(START_RULENAME, ASTNodeLabel(START_AST, CARET))
             ))
-
-    /** Recursively convert a list of AST nodes into a list of Clauses. */
-    private fun parseASTNodes(astNodes: List<ASTNode>): List<Clause> {
-        return astNodes
-                .stream()
-                .map { node -> parseASTNode(node)}.toList()
-    }
-
-    /** Recursively parse a single AST node.  */
-    private fun parseASTNode(astNode: ASTNode): Clause {
-        val clause: Clause
-        when (astNode.label) {
-            SEQ_AST                 -> clause = clauseWithMoreThanOneChild(astNode, MultiChildClauseType.SEQ)
-            FIRST_AST               -> clause = clauseWithMoreThanOneChild(astNode, MultiChildClauseType.FIRST)
-            ONE_OR_MORE_AST         -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.ONE_OR_MORE)
-            ZERO_OR_MORE_AST        -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.ZERO_OR_MORE)
-            OPTIONAL_AST            -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.OPTIONAL)
-            FOLLOWED_BY_AST         -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.FOLLOWED_BY)
-            NOT_FOLLOWED_BY_AST     -> clause = clauseWithOneChild(astNode,         SingleChildClauseType.NOT_FOLLOWED_BY)
-            LABEL_AST               -> clause = ast(astNode.firstChild.text, parseASTNode(astNode.secondChild.firstChild))
-            IDENT_AST               -> clause = ruleRef(astNode.text) // Rule name ref
-            QUOTED_STRING_AST           // Doesn't include surrounding quotes
-                                    -> clause = str(StringUtils.unescapeString(astNode.text))
-            SINGLE_QUOTED_CHAR_AST  -> clause = c(StringUtils.unescapeChar(astNode.text))
-            START_AST               -> clause = start()
-            NOTHING_AST             -> clause = nothing()
-            CHAR_RANGE_AST          -> clause = charRangeClause(astNode)
-            else                        // Keep recursing for parens (the only type of AST node that doesn't have a label)
-                                    -> clause = singleChild(astNode, typeName = "node")
-        }
-        return clause
-    }
-
-    private fun clauseWithOneChild(astNode: ASTNode, clauseType: SingleChildClauseType): Clause {
-        val childASTNode = singleChild(astNode, clauseType.typeName)
-        val clauseConstructor = clauseType.clauseConstructor
-        return clauseConstructor(childASTNode)
-    }
-
-    private fun singleChild(astNode: ASTNode, typeName: String): Clause {
-        val childAstNodes = parseASTNodes(astNode.children)
-        val size = childAstNodes.size
-        require(size == 1) { "Expected one subclause for ${typeName}, got $size: ${astNode}"}
-        return childAstNodes[0]
-    }
-
-    enum class SingleChildClauseType(val typeName: String, val clauseConstructor: (Clause) -> Clause) {
-        ONE_OR_MORE        ("OneOrMore", ClauseFactory::oneOrMore),
-        ZERO_OR_MORE       ("ZeroOrMore", ClauseFactory::zeroOrMore),
-        OPTIONAL           ("Optional", ClauseFactory::optional),
-        FOLLOWED_BY        ("FollowedBy", ClauseFactory::followedBy),
-        NOT_FOLLOWED_BY    ("NotFollowedBy", ClauseFactory::notFollowedBy)
-    }
-
-    private fun clauseWithMoreThanOneChild(astNode: ASTNode, clauseType: MultiChildClauseType): Clause {
-        val childASTNodes = parseASTNodes(astNode.children).toTypedArray()
-        val size = childASTNodes.size
-        require (size > 1) { "Must have at least 2 child AST nodes for ${clauseType.typeName}, got ${size}: ${astNode}" }
-
-        val nodesAfterSecond = childASTNodes.slice(indices = 2 until size).toTypedArray()
-        val clauseConstructor = clauseType.clauseConstructor
-        return clauseConstructor(childASTNodes[0], childASTNodes[1], nodesAfterSecond)
-    }
-
-    enum class MultiChildClauseType(val typeName: String, val clauseConstructor: (Clause, Clause, Array<Clause>) -> Clause) {
-        SEQ   ("Seq", ClauseFactory::seq),
-        FIRST ("First", ClauseFactory::first),
-    }
-
-    private fun charRangeClause(astNode: ASTNode): Clause {
-        var text = StringUtils.unescapeString(astNode.text)
-        val invert = text.startsWith("^")
-        if (invert) {
-            text = text.substring(1)
-        }
-        return if (invert) cRange(text).invert() else cRange(text)
-    }
-
-    /** Parse a rule in the AST, returning a new [Rule].  */
-    private fun parseRule(ruleNode: ASTNode): Rule {
-        val ruleName = ruleNode.firstChild.text
-        val hasPrecedence = ruleNode.children.size > 2
-        val associativity = when {
-            ruleNode.children.size < 4               -> null
-            ruleNode.thirdChild.label == L_ASSOC_AST -> Associativity.LEFT
-            ruleNode.thirdChild.label == R_ASSOC_AST -> Associativity.RIGHT
-            else                                     -> null
-        }
-        val precedence = if (hasPrecedence) Integer.parseInt(ruleNode.secondChild.text) else -1
-
-        require(!hasPrecedence || precedence >= 0)
-            { ("If there is precedence, it must be zero or positive (rule ${ruleName} " +
-                    "has precedence level ${precedence})")
-            }
-
-        val astNode = ruleNode.getChild(ruleNode.children.size - 1)
-        val clause = parseASTNode(astNode)
-        return rule(ruleName, precedence, associativity, clause)
-    }
 
     /** Parse a grammar description in an input string, returning a new [Grammar] object.  */
     fun parse(input: String): Grammar {
@@ -444,22 +477,23 @@ object MetaGrammar {
         //        }
 
         val precedenceOfFirst = GrammarPrecedenceLevels.clauseTypeToPrecedence[First::class]
-        val syntaxErrors = memoTable.getSyntaxErrors(arrayOf(GRAMMAR, RULE, "${CLAUSE}[${precedenceOfFirst}]")
+        val syntaxErrors = memoTable.getSyntaxErrors(arrayOf(
+                GRAMMAR_RULENAME, RULE_RULENAME, "${CLAUSE_RULENAME}[${precedenceOfFirst}]")
         )
 
         if (syntaxErrors.isNotEmpty()) {
             ParserInfo.printSyntaxErrors(syntaxErrors)
         }
 
-        val topLevelRule = grammar.getRule(GRAMMAR)
+        val topLevelRule = grammar.getRule(GRAMMAR_RULENAME)
         var topLevelRuleASTNodeLabel = topLevelRule.labeledClause.astNodeLabel
         if (topLevelRuleASTNodeLabel == null) {
             topLevelRuleASTNodeLabel = "<root>"
         }
-        val topLevelMatches = grammar.getNonOverlappingMatches(GRAMMAR, memoTable)
+        val topLevelMatches = grammar.getNonOverlappingMatches(GRAMMAR_RULENAME, memoTable)
 
         require(topLevelMatches.isNotEmpty())
-            { "Toplevel rule \"$GRAMMAR\" did not match" }
+        { "Toplevel rule \"$GRAMMAR_RULENAME\" did not match" }
 
         if (topLevelMatches.size > 1) {
             println("\nMultiple toplevel matches:")
@@ -479,7 +513,7 @@ object MetaGrammar {
 
             require(astNode.label == RULE_AST) { "Wrong node type" }
 
-            val rule = parseRule(astNode)
+            val rule = RuleParser.parseRule(astNode)
             rules.add(rule)
         }
         return Grammar(rules)

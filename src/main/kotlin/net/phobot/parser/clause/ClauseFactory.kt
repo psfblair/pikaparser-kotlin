@@ -35,34 +35,19 @@
 
 package net.phobot.parser.clause
 
-import net.phobot.parser.clause.aux.ASTNodeLabel
-import net.phobot.parser.clause.aux.RuleRef
-import net.phobot.parser.clause.nonterminal.*
+import net.phobot.parser.clause.nonterminal.First
+import net.phobot.parser.clause.nonterminal.FollowedBy
+import net.phobot.parser.clause.nonterminal.NotFollowedBy
+import net.phobot.parser.clause.nonterminal.OneOrMore
 import net.phobot.parser.clause.terminal.CharSeq
 import net.phobot.parser.clause.terminal.CharSet
 import net.phobot.parser.clause.terminal.Nothing
 import net.phobot.parser.clause.terminal.Start
-import net.phobot.parser.grammar.Rule
-import net.phobot.parser.grammar.Rule.Associativity
+import net.phobot.parser.utils.StringUtils
 import java.util.*
 
-/** Clause factory, enabling the construction of clauses without "new", using static imports.  */
+/** Constructor functions for clause types where simply calling the constructor will not suffice.  */
 object ClauseFactory {
-    /** Construct a [Rule].  */
-    fun rule(ruleName: String, clause: Clause): Rule {
-        // Use -1 as precedence if rule group has only one precedence
-        return rule(ruleName, precedence = -1, associativity = null, clause = clause)
-    }
-
-    /** Construct a [Rule] with the given precedence and associativity.  */
-    fun rule(ruleName: String, precedence: Int, associativity: Associativity?, clause: Clause): Rule {
-        return Rule(ruleName, precedence, associativity, clause)
-    }
-
-    /** Construct a [Seq] clause.  */
-    fun seq(subClause1: Clause, subClause2: Clause, vararg subClauses: Clause): Clause {
-        return Seq(subClause1, subClause2, *subClauses)
-    }
 
     /** Construct a [OneOrMore] clause.  */
     fun oneOrMore(subClause: Clause): Clause {
@@ -81,18 +66,13 @@ object ClauseFactory {
     /** Construct an [Optional] clause.  */
     fun optional(subClause: Clause): Clause {
         // Optional(X) -> First(X, Nothing)
-        return first(subClause, nothing())
+        return First(subClause, Nothing())
     }
 
     /** Construct a [ZeroOrMore] clause.  */
     fun zeroOrMore(subClause: Clause): Clause {
         // ZeroOrMore(X) => Optional(OneOrMore(X)) => First(OneOrMore(X), Nothing)
         return optional(oneOrMore(subClause))
-    }
-
-    /** Construct a [First] clause.  */
-    fun first(subClause1: Clause, subClause2: Clause, vararg subClauses: Clause): Clause {
-        return First(subClause1, subClause2, *subClauses)
     }
 
     /** Construct a [FollowedBy] clause.  */
@@ -120,45 +100,22 @@ object ClauseFactory {
         return NotFollowedBy(subClause)
     }
 
-    /** Construct a [Start] terminal.  */
-    fun start(): Clause {
-        return Start()
-    }
-
-    /** Construct a [Nothing] terminal.  */
-    fun nothing(): Clause {
-        return Nothing()
-    }
-
     /** Construct a terminal that matches a string token.  */
     fun str(str: String): Clause {
         return if (str.length == 1) {
-            c(str[0])
+            CharSet(str[0])
         } else {
             CharSeq(str, ignoreCase = false)
         }
     }
 
-    /** Construct a terminal that matches one instance of any character given in the varargs param.  */
-    fun c(vararg chrs: Char): CharSet {
-        return CharSet(*chrs)
-    }
-
-    /** Construct a terminal that matches one instance of any character in a given string.  */
-    fun cInStr(str: String): CharSet {
-        return CharSet(*str.toCharArray())
-    }
-
-    /** Construct a terminal that matches a character range.  */
-    fun cRange(minChar: Char, maxChar: Char): CharSet {
-        require(maxChar >= minChar) { "maxChar < minChar" }
-        val chars = CharArray(maxChar - minChar + 1)
-        var c = minChar
-        while (c <= maxChar) {
-            chars[c - minChar] = c
-            c++
+    fun charRangeClause(rangeString: String): Clause {
+        var text = StringUtils.unescapeString(rangeString)
+        val invert = text.startsWith("^")
+        if (invert) {
+            text = text.substring(1)
         }
-        return CharSet(*chars)
+        return if (invert) cRange(text).invert() else cRange(text)
     }
 
     /**
@@ -181,21 +138,18 @@ object ClauseFactory {
             }
             i++
         }
-        return if (charSets.size == 1) charSets[0] else CharSet(*charSets.toTypedArray())
+        return if (charSets.size == 1) charSets[0] else CharSet(charSets)
     }
 
-    /** Construct a character set as the union of other character sets.  */
-    fun c(vararg charSets: CharSet): CharSet {
-        return CharSet(*charSets)
-    }
-
-    /** Construct an [ASTNodeLabel].  */
-    fun ast(astNodeLabel: String, clause: Clause): Clause {
-        return ASTNodeLabel(astNodeLabel, clause)
-    }
-
-    /** Construct a [RuleRef].  */
-    fun ruleRef(ruleName: String): Clause {
-        return RuleRef(ruleName)
+    /** Construct a terminal that matches a character range.  */
+    fun cRange(minChar: Char, maxChar: Char): CharSet {
+        require(maxChar >= minChar) { "maxChar < minChar" }
+        val chars = CharArray(maxChar - minChar + 1)
+        var c = minChar
+        while (c <= maxChar) {
+            chars[c - minChar] = c
+            c++
+        }
+        return CharSet(chars)
     }
 }

@@ -51,13 +51,28 @@ class CharSet : Terminal {
 
     private var invertMatch = false
 
-    constructor(vararg chars: Char) : super() {
+    constructor(char: Char) : super() {
+        this.charSet.add(char)
+    }
+
+    constructor(char1: Char, char2: Char) : super() {
+        this.charSet.add(char1)
+        this.charSet.add(char2)
+    }
+
+    constructor(chars: CharArray) : super() {
         for (i in chars.indices) {
             this.charSet.add(chars[i])
         }
     }
 
     constructor(vararg charSets: CharSet) : super() {
+        for (charSet in charSets) {
+            this.subCharSets.add(charSet)
+        }
+    }
+
+    constructor(charSets: List<CharSet>) : super() {
         for (charSet in charSets) {
             this.subCharSets.add(charSet)
         }

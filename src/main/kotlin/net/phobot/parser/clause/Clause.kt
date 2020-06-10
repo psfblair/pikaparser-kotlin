@@ -30,7 +30,6 @@
  * // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * // DEALINGS IN THE SOFTWARE.
  * //
- *
  */
 
 package net.phobot.parser.clause
@@ -44,7 +43,6 @@ import net.phobot.parser.grammar.Rule
 import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
-import java.util.*
 import java.util.stream.Collectors.joining
 import kotlin.streams.asStream
 import kotlin.streams.toList
@@ -169,8 +167,10 @@ protected constructor(vararg subClauses: Clause) {
                 var addedASTNodeLabels = false
                 for (i in rules.indices) {
                     val rule = rules[i]
-                    if (rule.labeledClause.astNodeLabel != null) {
-                        buf.append(rule.labeledClause.astNodeLabel + ":")
+                    val astNodeLabel = rule.labeledClause.astNodeLabel
+                    if (astNodeLabel != null) {
+                        buf.append(astNodeLabel)
+                        buf.append(":")
                         addedASTNodeLabels = true
                     }
                 }

@@ -77,7 +77,7 @@ class Match
      * Get subclause matches. Automatically flattens the right-recursive structure of [OneOrMore] and
      * [Seq] nodes, collecting the subclause matches into a single array of (AST node label, match) tuples.
      */
-    fun getSubClauseMatches(): List<Entry<String, Match>> {
+    fun getSubClauseMatches(): List<Entry<String?, Match>> {
         return when {
             // This is a terminal or an empty placeholder match returned by MemoTable.lookUpBestMatch
             subClauseMatches.isEmpty() -> emptyList()
@@ -87,8 +87,8 @@ class Match
         }
     }
 
-    private fun flattenRightRecursiveParseSubtree(): ArrayList<Entry<String, Match>> {
-        val subClauseMatchesToUse = ArrayList<Entry<String, Match>>()
+    private fun flattenRightRecursiveParseSubtree(): ArrayList<Entry<String?, Match>> {
+        val subClauseMatchesToUse = ArrayList<Entry<String?, Match>>()
         var curr = this
 
         while (curr.subClauseMatches.isNotEmpty()) {
@@ -111,27 +111,23 @@ class Match
         return listOf(entry)
     }
 
-    private fun getLabeledSubclauseMatches(): List<SimpleEntry<String, Match>> {
+    private fun getLabeledSubclauseMatches(): List<SimpleEntry<String?, Match>> {
         return memoKey.clause.labeledSubClauses.indices
                 .asSequence()
                 .asStream()
                 .map { index -> Pair(index, subClauseMatches[index]!!)}
                 .map { (index, subClauseMatch) -> entryFor(subClauseMatch, memoKey, index) }
-                .toList<SimpleEntry<String, Match>>()
+                .toList<SimpleEntry<String?, Match>>()
     }
 
-    private fun entryFor(subClauseMatch: Match, key: MemoKey, index: Int): SimpleEntry<String, Match> {
+    private fun entryFor(subClauseMatch: Match, key: MemoKey, index: Int): SimpleEntry<String?, Match> {
         val astNodeLabel = astLabelForLabeledSubclause(key, index)
-        return SimpleEntry<String, Match>(astNodeLabel, subClauseMatch)
+        return SimpleEntry<String?, Match>(astNodeLabel, subClauseMatch)
     }
 
     private fun astLabelForLabeledSubclause(key: MemoKey, index: Int): String? {
         val labeledClause = key.clause.labeledSubClauses[index]
-        return if (labeledClause != null) {
-                    labeledClause.astNodeLabel
-                } else {
-                    null
-                }
+        return labeledClause?.astNodeLabel ?: null
     }
 
     /**
