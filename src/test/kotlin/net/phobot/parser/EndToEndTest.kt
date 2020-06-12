@@ -57,10 +57,11 @@ class EndToEndTest : FunSpec({
         ParserInfo.printParseResult(topRuleName, memoTable, recoveryRuleNames, false)
 
         val allClauses = memoTable.grammar.allClauses
-        allClauses.size shouldBe(27)
+        allClauses.size() shouldBe(27)
 
-        val firstClause = allClauses.get(0)
-        var matches = memoTable.getAllMatches(firstClause)
+        var matches = allClauses.get(0)
+                .map { firstClause -> memoTable.getAllMatches(firstClause) }
+                .orElse(emptyList())
         matches.size shouldBe(16)
 
         val firstMatch = matches.get(0)
@@ -73,8 +74,9 @@ class EndToEndTest : FunSpec({
         sixteenthMatch.memoKey.startPos shouldBe(21)
         sixteenthMatch.memoKey.toStringWithRuleNames() shouldBe("[a-z] : 21")
 
-        val lastClause = allClauses.get(26)
-        matches = memoTable.getAllMatches(lastClause)
+        matches = allClauses.get(26)
+                        .map { firstClause -> memoTable.getAllMatches(firstClause) }
+                        .orElse(emptyList())
 
         val topLevelMatch = matches.get(0)
         topLevelMatch.length shouldBe(23)
@@ -94,7 +96,7 @@ class EndToEndTest : FunSpec({
         val grammarSpec = loadResourceFile("Java.1.8.peg")
         val grammar = MetaGrammar.parse(grammarSpec)
 
-        val input = loadResourceFile("MemoTable.java")
+        val input = loadResourceFile("MemoTable.java.sample")
         val memoTable = grammar.parse(input)
 
         val topRuleName = "Compilation"
@@ -105,7 +107,7 @@ class EndToEndTest : FunSpec({
 
         val syntaxErrors = memoTable.getSyntaxErrors(recoveryRuleNames)
         if (! syntaxErrors.isEmpty()) {
-            ParserInfo.printSyntaxErrors(syntaxErrors);
+            ParserInfo.printSyntaxErrors(syntaxErrors)
         }
    }
 /*

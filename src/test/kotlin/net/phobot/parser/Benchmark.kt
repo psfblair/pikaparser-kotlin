@@ -44,7 +44,7 @@ import net.phobot.parser.ruleprocessing.MetaGrammar
 import java.util.*
 
 
-public class Benchmark : FunSpec({
+class Benchmark : FunSpec({
     test("arithmetic benchmark") {
         val grammarSpec = loadResourceFile("arithmetic.grammar")
         val toBeParsed = loadResourceFile("arithmetic.input")
@@ -64,7 +64,7 @@ public class Benchmark : FunSpec({
 
     test("java parse benchmark") {
         val grammarSpec = loadResourceFile("Java.1.8.peg")
-        val toBeParsed = loadResourceFile("MemoTable.java")
+        val toBeParsed = loadResourceFile("MemoTable.java.sample")
 
         val grammar = MetaGrammar.parse(grammarSpec)
 
@@ -74,7 +74,7 @@ public class Benchmark : FunSpec({
 
     object Benchmark {
 
-        fun <T> executeInTimedLoop(toExecute: (String) -> T, input: String, benchmarkName: String) : Unit {
+        fun <T> executeInTimedLoop(toExecute: (String) -> T, input: String, benchmarkName: String) {
             val results = LongArray(100)
             (0..99).forEach { i ->
                 val start = System.nanoTime()
@@ -97,11 +97,11 @@ macOS 10.13.6
 IntelliJ IDEA 2020.1
 Results in seconds
 ===================== RESULTS FOR arithmetic=====================
-DoubleSummaryStatistics{count=100, sum=1.394441, min=0.004973, average=0.013944, max=0.252265}
+DoubleSummaryStatistics{count=100, sum=1.759204, min=0.005173, average=0.017592, max=0.578258}
 
 ===================== RESULTS FOR java-grammar=====================
-DoubleSummaryStatistics{count=100, sum=63.733993, min=0.499645, average=0.637340, max=1.354979}
+DoubleSummaryStatistics{count=100, sum=88.208481, min=0.715492, average=0.882085, max=1.369372}
 
 ===================== RESULTS FOR java-parse=====================
-DoubleSummaryStatistics{count=100, sum=103.694866, min=0.826100, average=1.036949, max=1.479693}
+DoubleSummaryStatistics{count=100, sum=106.160601, min=0.841498, average=1.061606, max=1.400103}
  */

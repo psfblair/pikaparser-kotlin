@@ -35,16 +35,20 @@
 
 package net.phobot.parser.grammar
 
+import cyclops.data.Seq
+import cyclops.data.Vector
 import net.phobot.parser.clause.Clause
 import net.phobot.parser.clause.aux.RuleRef
 import net.phobot.parser.clause.terminal.Nothing
-import net.phobot.parser.clause.terminal.Terminal
 import net.phobot.parser.grammar.utils.*
 import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
-import java.util.*
-import java.util.stream.Collectors
+import java.util.NavigableMap
+import java.util.PriorityQueue
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 /** A grammar. The [.parse] method runs the parser on the provided input string.  */
 class Grammar
@@ -54,8 +58,14 @@ class Grammar
     /** All rules in the grammar.  */
     private val allRules: List<Rule>
 
-    /** All clausesin the grammar.  */
-    val allClauses: List<Clause>
+    /** All clauses in the grammar.  */
+    val allClauses: Vector<Clause>
+
+    /** All clauses in the grammar that are terminals.  */
+    val terminals: Seq<Clause>
+
+    /** All clauses in the grammar that are at the top level.  */
+    val topLevelClauses: Seq<Clause>
 
     /** A mapping from rule name (with any precedence suffix) to the corresponding [Rule].  */
     val ruleNameWithPrecedenceToRule: MutableMap<String, Rule>
@@ -132,7 +142,15 @@ class Grammar
         }
 
         // Topologically sort clauses, bottom-up, placing the result in allClauses
-        allClauses = findClauseTopoSortOrder(allRules, lowestPrecedenceClauses)
+        val sortedClauses = sortClausesInBottomUpOrder(allRules, lowestPrecedenceClauses)
+
+        allClauses = sortedClauses.orderedClauses
+        terminals = sortedClauses.terminals
+        topLevelClauses = sortedClauses.topLevelClauses
+
+        // TODO These three operations cause mutation in the clauses!
+        allClauses
+            .mapIndexed { index, clause -> clause.clauseIdx = index ; clause }
 
         // Find clauses that always match zero or more characters, e.g. FirstMatch(X | Nothing).
         // Importantly, allClauses is in reverse topological order, i.e. traversal is bottom-up.
@@ -144,32 +162,29 @@ class Grammar
         for (clause in allClauses) {
             clause.addAsSeedParentClause()
         }
+
     }
 
     // -------------------------------------------------------------------------------------------------------------
 
     /** Main parsing method.  */
     fun parse(input: String): MemoTable {
-        val priorityQueue = PriorityQueue<Clause> { c1, c2 -> c1.clauseIdx - c2.clauseIdx }
-
         val memoTable = MemoTable(grammar = this, input = input)
 
-        val terminals = allClauses
-                .stream()
-                .filter { clause -> (clause is Terminal
-                                    // Don't match Nothing everywhere -- it always matches
-                                    && clause !is Nothing)
-                        }
-                .collect(Collectors.toList())
+        val priorityQueue = PriorityQueue<Clause> { c1, c2 -> c1.clauseIdx - c2.clauseIdx }
+
+        // Don't match Nothing everywhere -- it always matches
+        val startingTerminals = terminals.filter { clause: Clause -> clause !is Nothing }
 
         // Main parsing loop
         for (startPos in input.length - 1 downTo 0) {
-            priorityQueue.addAll(terminals)
+            priorityQueue.addAll(startingTerminals)
             while (!priorityQueue.isEmpty()) {
                 // Remove a clause from the priority queue (ordered from terminals to toplevel clauses)
                 val clause = priorityQueue.remove()
                 val memoKey = MemoKey(clause, startPos)
                 val match = clause.match(memoTable, memoKey, input)
+                // TODO Memo table can mutate the queue
                 memoTable.addMatch(memoKey, match, priorityQueue)
             }
         }

@@ -35,24 +35,25 @@
 
 package net.phobot.parser.utils
 
+import cyclops.data.Vector
 import net.phobot.parser.ast.ASTNode
 import net.phobot.parser.clause.Clause
 import net.phobot.parser.clause.nonterminal.Seq
 import net.phobot.parser.clause.terminal.Terminal
-import net.phobot.parser.grammar.Grammar
 import net.phobot.parser.memotable.Match
 import net.phobot.parser.memotable.MemoKey
 import net.phobot.parser.memotable.MemoTable
-import java.util.*
+import java.util.Collections
+import java.util.NavigableMap
+import java.util.TreeMap
 import kotlin.collections.Map.Entry
 import kotlin.math.max
 
 /** Utility methods for printing information about the result of a parse.  */
 object ParserInfo {
     /** Print all the clauses in a grammar.  */
-    private fun printClauses(grammar: Grammar) {
-        for (i in grammar.allClauses.size - 1 downTo 0) {
-            val clause = grammar.allClauses[i]
+    private fun printClauses(allClauses: Vector<Clause>) {
+        allClauses.reverse().forEachIndexed {i, clause ->
             println(String.format("%3d : %s", i, clause.toStringWithRuleNames()))
         }
     }
@@ -60,13 +61,13 @@ object ParserInfo {
     // -------------------------------------------------------------------------------------------------------------
 
     /** Print the memo table.  */
-    private fun printMemoTable(memoTable: MemoTable) {
-        val buf = arrayOfNulls<StringBuilder>(memoTable.grammar.allClauses.size)
+    private fun printMemoTable(memoTable: MemoTable, allClauses: Vector<Clause>) {
+        val numberOfClauses = allClauses.size()
         var marginWidth = 0
-        for (i in memoTable.grammar.allClauses.indices) {
+
+        val stringBuilders = allClauses.reverse().mapIndexed() { indexFromEnd, clause ->
             val stringBuilder = StringBuilder()
-            stringBuilder.append(String.format("%3d", memoTable.grammar.allClauses.size - 1 - i) + " : ")
-            val clause = memoTable.grammar.allClauses[memoTable.grammar.allClauses.size - 1 - i]
+            stringBuilder.append(String.format("%3d", indexFromEnd) + " : ")
             if (clause is Terminal) {
                 stringBuilder.append("[terminal] ")
             }
@@ -76,29 +77,27 @@ object ParserInfo {
             stringBuilder.append(clause.toStringWithRuleNames())
             marginWidth = max(marginWidth, stringBuilder.length + 2)
 
-            buf[i] = stringBuilder
+            stringBuilder
         }
 
         val tableWidth = marginWidth + memoTable.input.length + 1
-        for (i in memoTable.grammar.allClauses.indices) {
-            val stringBuilder = buf[i] ?: StringBuilder()
+        for (stringBuilder in stringBuilders) {
             while (stringBuilder.length < marginWidth) {
                 stringBuilder.append(' ')
             }
             while (stringBuilder.length < tableWidth) {
                 stringBuilder.append('-')
             }
-            buf[i] = stringBuilder
         }
 
         val nonOverlappingMatches = memoTable.allNonOverlappingMatches
-        for (clauseIdx in memoTable.grammar.allClauses.size - 1 downTo 0) {
-            val row = memoTable.grammar.allClauses.size - 1 - clauseIdx
-            val stringBuilder = buf[row] ?: StringBuilder()
+        for (clauseIdx in numberOfClauses - 1 downTo 0) {
+            val row = numberOfClauses - 1 - clauseIdx
+            val stringBuilder = stringBuilders[row]
 
-            val clause = memoTable.grammar.allClauses[clauseIdx]
-            val matchesForClause = nonOverlappingMatches[clause]
-            if (matchesForClause != null) {
+            val maybeClause = allClauses[clauseIdx]
+            maybeClause.forEach { clause ->
+                val matchesForClause = nonOverlappingMatches[clause] ?: TreeMap()
                 for (matchEnt in matchesForClause.entries) {
                     val match = matchEnt.value
                     val matchStartPos = match.memoKey.startPos
@@ -114,7 +113,6 @@ object ParserInfo {
                 }
             }
             println(stringBuilder)
-            buf[row] = stringBuilder
         }
 
         for (j in 0 until marginWidth) {
@@ -165,8 +163,8 @@ object ParserInfo {
     }
 
     /** Print the parse tree in memo table form.  */
-    private fun printParseTreeInMemoTableForm(memoTable: MemoTable) {
-        require(memoTable.grammar.allClauses.isNotEmpty()) { "Grammar is empty" }
+    private fun printParseTreeInMemoTableForm(memoTable: MemoTable, allClauses: Vector<Clause>) {
+        require(! allClauses.isEmpty()) { "Grammar is empty" }
 
         // Map from cycle depth (sorted in decreasing order) -> clauseIdx -> startPos -> match
         val cycleDepthToMatches = TreeMap<Int, MutableMap<Int, MutableMap<Int, Match>>>(
@@ -178,10 +176,11 @@ object ParserInfo {
         // Get all nonoverlapping matches rules, top-down.
         val nonOverlappingMatches = memoTable.allNonOverlappingMatches
         var maxCycleDepth = 0
-        for (clauseIdx in memoTable.grammar.allClauses.size - 1 downTo 0) {
-            val clause = memoTable.grammar.allClauses[clauseIdx]
-            val matchesForClause = nonOverlappingMatches[clause]
-            if (matchesForClause != null) {
+        for (clauseIdx in allClauses.size() - 1 downTo 0) {
+            val maybeClause = allClauses[clauseIdx]
+            maybeClause.forEach { clause ->
+                val matchesForClause = nonOverlappingMatches[clause] ?: TreeMap()
+
                 for (matchEnt in matchesForClause.entries) {
                     val match = matchEnt.value
                     val matchStartPos = match.memoKey.startPos
@@ -201,12 +200,16 @@ object ParserInfo {
         // Assign matches to rows
         val matchesForRow = ArrayList<Map<Int, Match>>()
         val clauseForRow = ArrayList<Clause>()
-        for (matchesForDepth in cycleDepthToMatches.values) {
-            for (matchesForClauseIdxEnt in matchesForDepth.entries) {
-                clauseForRow.add(memoTable.grammar.allClauses[matchesForClauseIdxEnt.key])
-                matchesForRow.add(matchesForClauseIdxEnt.value)
-            }
-        }
+        cycleDepthToMatches
+                .values
+                .flatMap { matchesForDepth -> matchesForDepth.entries }
+                .forEach { matchesForClauseIndex ->
+                    val maybeClauseForRow = allClauses[matchesForClauseIndex.key]
+                    maybeClauseForRow.forEach { clause -> // TODO Deal with option type. This could be simplified.
+                        clauseForRow.add(clause)
+                        matchesForRow.add(matchesForClauseIndex.value)
+                    }
+                }
 
         // Set up row labels
         val rowLabel = arrayOfNulls<StringBuilder>(clauseForRow.size)
@@ -481,24 +484,25 @@ object ParserInfo {
     /** Summarize a parsing result.  */
     fun printParseResult(topLevelRuleName: String, memoTable: MemoTable,
                          syntaxCoverageRuleNames: Array<String>, showAllMatches: Boolean) {
+        val allClauses = memoTable.grammar.allClauses
+
         println()
         println("Clauses:")
-        printClauses(memoTable.grammar)
+        printClauses(allClauses)
 
         println()
         println("Memo Table:")
-        printMemoTable(memoTable)
+        printMemoTable(memoTable, allClauses)
 
         // Print memo table
         println()
         println("Match tree for rule $topLevelRuleName:")
-        printParseTreeInMemoTableForm(memoTable)
+        printParseTreeInMemoTableForm(memoTable, allClauses)
 
         // Print all matches for each clause
-        for (i in memoTable.grammar.allClauses.size - 1 downTo 0) {
-            val clause = memoTable.grammar.allClauses[i]
-            printMatches(clause, memoTable, showAllMatches)
-        }
+        allClauses
+                .reverse()
+                .forEach { clause -> printMatches(clause, memoTable, showAllMatches) }
 
         val rule = memoTable.grammar.ruleNameWithPrecedenceToRule[topLevelRuleName]
         if (rule != null) {

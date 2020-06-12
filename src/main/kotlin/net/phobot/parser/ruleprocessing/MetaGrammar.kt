@@ -497,7 +497,7 @@ object MetaGrammar {
         val topLevelMatches = grammar.getNonOverlappingMatches(GRAMMAR_RULENAME, memoTable)
 
         require(topLevelMatches.isNotEmpty())
-        { "Toplevel rule \"$GRAMMAR_RULENAME\" did not match" }
+            { "Toplevel rule \"${GRAMMAR_RULENAME}\" did not match" }
 
         if (topLevelMatches.size > 1) {
             println("\nMultiple toplevel matches:")

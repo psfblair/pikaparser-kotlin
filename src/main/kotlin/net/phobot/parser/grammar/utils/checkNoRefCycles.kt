@@ -50,8 +50,7 @@ fun checkNoRefCycles(clause: Clause, selfRefRuleName: String, visited: MutableSe
         { "Rules should not contain cycles when they are created: ${selfRefRuleName}" }
 
     for (labeledSubClause in clause.labeledSubClauses) {
-        val subClause = labeledSubClause.clause
-        checkNoRefCycles(subClause, selfRefRuleName, visited)
+        checkNoRefCycles(labeledSubClause.clause, selfRefRuleName, visited)
     }
     visited.remove(clause)
 }
