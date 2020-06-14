@@ -160,7 +160,7 @@ private fun findCycleHeadClauses (accumulator: CycleHeadClauseAccumulator, claus
             )
 }
 
-    /** Find reachable clauses, and bottom-up (postorder), find clauses that always match in every position.  */
+/** Find reachable clauses, and bottom-up (postorder), find clauses that always match in every position.  */
 private fun findTerminals(accumulator: OrderedClauseAccumulator, clause: Clause): OrderedClauseAccumulator {
     return if (accumulator.didVisit(clause)) {
         accumulator
