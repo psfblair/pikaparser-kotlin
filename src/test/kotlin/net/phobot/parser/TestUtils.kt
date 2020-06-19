@@ -42,6 +42,6 @@ import java.nio.file.Paths
 object TestUtils {
     fun loadResourceFile(filename:String): String {
         val resourceUrl = javaClass.getClassLoader().getResource(filename)!!.toURI()
-        return Files.readAllLines(Paths.get(resourceUrl)).joinToString(separator = "")
+        return Files.readAllLines(Paths.get(resourceUrl)).joinToString(separator = "\n")
     }
 }

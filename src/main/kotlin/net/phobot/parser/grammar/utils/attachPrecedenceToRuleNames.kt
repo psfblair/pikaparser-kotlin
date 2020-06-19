@@ -123,7 +123,7 @@ fun attachPrecedenceToSelfReferentialRuleNames(ruleNameWithoutPrecedence: String
     ruleNameToLowestPrecedenceLevelRuleName[ruleNameWithoutPrecedence] = lowestPrecRule.ruleName
 }
 
-/** Count number of self-references among descendent clauses.  */
+/** Count number of self-references among descendant clauses.  */
 private fun countRuleSelfReferences(clause: Clause, ruleNameWithoutPrecedence: String): Int {
     return if (clause is RuleRef && clause.referencedRuleName == ruleNameWithoutPrecedence) {
         1
